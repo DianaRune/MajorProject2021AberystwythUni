@@ -22,7 +22,7 @@ public class MusicGeneratorGUI extends Application { // implements ActionListene
 
     public PerspectiveCamera theCamera;
 
-    //You don't put this shit here.
+    //You don't put this here.
     //@FXML private Sphere icon;
     //@FXML private Sphere icon1;
     //@FXML private Sphere icon2;
@@ -49,8 +49,7 @@ public class MusicGeneratorGUI extends Application { // implements ActionListene
 
     @Override
     public void start(Stage mainStage) throws IOException {
-        Key.intialiseKeys();
-        MusicManager.getKey(DEFAULTKEYID);
+        MusicManager.setKey(DEFAULTKEYID);//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("main.fxml"));
         Parent root = loader.load();
