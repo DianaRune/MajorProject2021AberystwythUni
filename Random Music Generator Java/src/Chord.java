@@ -1,6 +1,7 @@
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Chord {
+/*
     public static int[] chordStructure;
 
     public static Chord Ichord = new Chord(new int[]{0, 2, 4});
@@ -18,4 +19,44 @@ public class Chord {
     public Chord(int[] chordStruct) {
         chordStruct = chordStructure;
     }
+
+    public static int[] getNotes(String chordName) {
+        int[] chordNotes = new int[3];
+        if (chordName == "Ichord")
+        {
+            chordNotes = Ichord.chordStructure;
+        }
+        else if (chordName == "iichord")
+        {
+            chordNotes = iichord.chordStructure;
+        }
+        else if (chordName == "iiichord")
+        {
+            chordNotes = iiichord.chordStructure;
+        }
+        else if (chordName == "ivchord")
+        {
+            chordNotes = ivchord.chordStructure;
+        }
+        else if (chordName == "vchord")
+        {
+            chordNotes = vchord.chordStructure;
+        }
+        else if (chordName == "vichord")
+        {
+            chordNotes = vichord.chordStructure;
+        }
+        else if (chordName == "viichord")
+        {
+            chordNotes = viichord.chordStructure;
+        }
+        else if (chordName == "viiichord")
+        {
+            chordNotes = viiichord.chordStructure;
+        }
+        System.out.println(viiichord.chordStructure);
+        System.out.println(chordNotes);
+        return chordNotes;
+    }
+*/
 }

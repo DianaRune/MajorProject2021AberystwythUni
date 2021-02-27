@@ -1,4 +1,4 @@
-import javafx.animation.Animation;
+//Importing the JavaFX libraries required to access and alter the graphics...
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -8,33 +8,26 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
-import javafx.scene.transform.Scale;
 import javafx.util.Duration;
-//import javafx.scene.panelRoot.iconGroup;
+//Importing MIDI library for the MIDI unavailable exception.
 import javax.sound.midi.*;
+//DO I NEED THESE LIBRARIES FOR 'IMPLEMENTS INITIALISABLE' AND INITIALISE METHOD?
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.util.concurrent.TimeUnit;
 
 //  MIDI
 //  source for a lot of this stuff: https://docs.oracle.com/javase/tutorial/sound/MIDI-synth.html
 
-
-
-//extend or (implements < doesn't work?)////////////////////////////////////////////////////////////////////////////////
-public class Main implements Initializable {//} extends Composer {
-
-    //SHOULD J INDEX BE 1?
-    public static int[][] pianoRoll = new int[40][2];
-    //velocity can be 0 when silence
-    public static int EMPTYFIELD = -1;
+//The controller class for my JavaFX UI. Also my main class where I will 'call MusicGen' functionality.
+public class Main {// implements Initializable {//} extends MusicGen {
 
     public static int OCTAVE = 3;
     //This is the amount of times +12 is added to a note...
 
-    public static long tempo = 120; //bpm
+    public static long tempo = 60; //bpm
     public static long lastTempoClickMillis;
     public static long lastTempoClickNewTime;
+    //The FXML objects created and referenced and initialised for use here.
     @FXML public AnchorPane panelRoot;
     @FXML public Sphere icon;
     @FXML public Cylinder icon1;
@@ -47,130 +40,59 @@ public class Main implements Initializable {//} extends Composer {
     static boolean reverse;// = false;
     static int currentColor;// = 0;
     static boolean canPlayAnim = true;
+    static boolean playing = true;
 
     static int currentKey;
-
-    //second
-    //60/30
-    //minute divided by beat tempo = second interval
 
     //Camera camera = new PerspectiveCamera();
 
 
-    public static void main(String args[]) {
-
-        //m.scaleCalculator(100,Note.A);
-
-        /////////////////////////////////////////////////////////////iconIdle();
-
-        System.out.println("PLEAAAAAAAAAAASE");
-
-        //fill array with 'empty values'
-        for (int i = 0; i < pianoRoll.length; i++) {
-            for (int j = 0; j < pianoRoll[0].length; j++) {
-                pianoRoll[i][j] = EMPTYFIELD;
-            }
-        }
-
-        try {
-            // get a synthesizer
-            Synthesizer s = MidiSystem.getSynthesizer();
-            // open it (I forgot to do this, the tutorial forgot to mention it!)
-            s.open();
-            // get the first MIDI channel in the synth (each channel supports one instrument)
-            MidiChannel chan = s.getChannels()[0];
-            // set bank 0, instrument 0 (it's a piano)
-            chan.programChange(0, 0);
-            // play a C/G perfect fifth - this is asynchronous; the notes will start playing
-            // while your code can do something else.
-            //////////////////////////////////////////////////////////////////////////////////////////////////////////////musicLoader();
-
-            //isEmpty()
-            while (pianoRoll[0][0] != 128 || pianoRoll[0][1] != -1) {
-                //while (pianoRoll[0][0] != 128 || pianoRoll[0][1] != -1) {
-                chan.noteOn((pianoRoll[0][0]), (pianoRoll[0][1]));
-                //Ready next note
-                //SHIFT ALL ELEMENTS ONE CLOSER THE THE FIRST ELEMENT
-
-                //minute divided by beat tempo = second interval
-                // wait for 3 seconds
-                try {
-                    TimeUnit.MILLISECONDS.sleep(tempo);
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
-                }
-                chan.noteOff(pianoRoll[0][0]);/////////////////////////////////////// umm?
-            }
-            //while piano roll not empty or Got weird un-lpayable note in it...
-            System.out.println("UGHHH EXCUSE ME... THIS ISN'T A PLAYABLE NOTE, THIS IS THE EMPTY PLACEHOLDER.");
-            //We want to fix the pianoroll... This should never happen? Adapt improvise overcome lol?
-
-            /////////////// note number=60, velocity=93
-            /////////////chan.noteOn(67, 93);
-            /////////////// wait for 3 seconds
-            /////////////TimeUnit.SECONDS.sleep(3);
-            /////////////// turn the notes off
-            /////////////chan.noteOff(60);
-            /////////////chan.noteOff(67);
-        } catch (MidiUnavailableException e) {
-            e.printStackTrace();
-        }
+    public static void main(String args[]) throws MidiUnavailableException {
+       //NOTHING HAPPENS....... :3
     }
 
-    //@Override
-    public void musicLoader() {
-        for (int i = 0; i < pianoRoll.length; i++) {
-            //velocity can be 0 when silence
-            if (pianoRoll[i][0] == EMPTYFIELD && pianoRoll[i][1] == EMPTYFIELD) {
-                pianoRoll[i][0] = 40;
-                pianoRoll[i][1] = 100;
-            } else {
-                System.out.println("Piano music queue full.");
-            }
-        }
-    }
-
+    //This method changes the tempo value and is passed to 'MusicGen'.
     public void tempoChange(MouseEvent mouseEvent) {
-        //Make group?
-        System.out.println("CLICKY CLICK");
-
+        ////////////////////////////////////////////////////////////////////////////////////Make group?
+        //Ensuring the sphere has returned to the initial size, so that two close clicks do not make a permanent size change...
         if (icon.getScaleX() == 1) {
+            //Then the animation can be performed with these values, it will last 0.75 seconds and scale to this degree.
             growSphereAnim(75, 0.15);
         }
-        //scaleTransition.stop();
 
+        //The time is taken since the last click, the difference in time since the last click is taken.
         lastTempoClickNewTime = (System.currentTimeMillis() - lastTempoClickMillis);
-        //System.out.println(lastTempoClickNewTime);
-        if (lastTempoClickNewTime > 0 || lastTempoClickNewTime < 3000) {
-            tempo = (60 / lastTempoClickNewTime);
+        //The tempo must be kept within sensible values... (300bpm to 20bpm).
+        if (lastTempoClickNewTime > 250 || lastTempoClickNewTime < 3000) {
+            //Then it is passed to MusicGen to be set.
+            //The tempo is converted to a bpm value and is passed as an int.
+            MusicManager.tempo = (int) (60 / (lastTempoClickNewTime/1000));
         }
-        //System.out.println(tempo);
-        lastTempoClickMillis = System.currentTimeMillis();
+        //I DON'T NEED THIS... RIGHT?
+        //lastTempoClickMillis = System.currentTimeMillis();
     }
 
+    //This method controls an animation for the graphic icon.
     public void growSphereAnim(int timeLength, double scaleAmount) {
-        Duration duration = Duration.millis(timeLength);
-        //Create new scale transition
-        ScaleTransition scaleTransition = new ScaleTransition(duration, icon);
-            //Set how much X should enlarge
+        //The scale animation/transition is made for the object...
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(timeLength), icon);
+            //The amount it should scale in respective directions is set.
             scaleTransition.setByX(scaleAmount);
-            //Set how much Y should
             scaleTransition.setByY(scaleAmount);
-            //Set how much Y should
             scaleTransition.setByZ(scaleAmount);
+            //The animation will reverse and will attempt to return the object to it's original state.
+            //In this case the object is shrinking back to normal.
             scaleTransition.setAutoReverse(true);
+            //It will perform 2 'animations'/cycles.
             scaleTransition.setCycleCount(2);
+            //It plays and reverses.
             scaleTransition.play();
     }
 
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        //icon.getRadius();
-        //icon.getMaterial();
-        //icon.getTranslateZ();
-        //icon.getRotate();
-        currentKey = 101;
-    }
+//    @Override
+//    public void initialize(URL url, ResourceBundle resourceBundle) {
+//        currentKey = 101;
+//    }
 
     @FXML
     public void pauseMusic(KeyEvent key) {
@@ -181,5 +103,29 @@ public class Main implements Initializable {//} extends Composer {
             default:
                 break;
         }
+    }
+
+    @FXML
+    public void playPauseMusic() throws MidiUnavailableException {
+        playing = !playing;
+        if (playing == true)
+        {
+            MusicManager.isPlaying = true;
+        }
+        else
+        {
+            MusicManager.isPlaying = false;
+        }
+    }
+
+    @FXML
+    public void initialisePlayingMusic() throws MidiUnavailableException {
+        System.out.println("Helo");
+        MusicManager.musicPlayer((int) tempo);
+    }
+
+    @FXML
+    public void setKey(){
+        //MusicManager.setKey();
     }
 }

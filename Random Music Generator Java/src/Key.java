@@ -1,16 +1,17 @@
-import javax.sound.midi.*;
-import java.util.concurrent.ThreadLocalRandom;
-import java.util.concurrent.TimeUnit;
-
-public class Key {//implements Composer {  //extends?
-    //Major and minor?
+//This constructor class, Key, represents every musical key and it's respective notes.
+public class Key {
+    //It has an integer identifier.
     public int ID;
+    //It has an array of integer values representing the notes in the scale for each respective Key.
     public int[] noteValues;
 
+    //These patterns are different for the two major/minor keys and represent the notes pressed in the scale, starting at the root.
+    //This follows the skip 2, 2, 1, 2, 2, 2, 1 pattern...
     public static int[] MAJORSCALEPATTERN = {0, 2, 4, 5, 7, 9, 11, 12};
+    //This follows the skip 1, 2, 2, 2, 2, 2, 1 pattern...
     public static int[] MINORSCALEPATTERN = {0, 1, 3, 5, 7, 9, 10, 12};
 
-    //keys
+    //Here the keys are initialised...
     //If number starts with 3 it's major that doesn't fit.
     //If number starts with 2, it's major and the number after is the order...
     //Minor is 3 digits starts with 1 and correlates with major.
@@ -49,27 +50,45 @@ public class Key {//implements Composer {  //extends?
     public static Key FMajorScale = new Key(213, scaleCalculator(213, Note.F));
     public static Key DMinorScale = new Key(113, scaleCalculator(113, Note.D));
 
+    //The constructor method for the Key type.
     public Key(int keyID, int[] keyNoteValues) {
+        //It has an integer identifier.
         ID = keyID;
+        //It has an array of integer values representing the notes in the scale for each respective Key.
         noteValues = keyNoteValues;
+
+        //########################################################################################################
+        //Do I need a third value to separate MAJOR/MINOR indicator and 'ID'?
+        //########################################################################################################
     }
 
+    //This method returns the int array for the Key's scale notes based off of the root note in the key.
     public static int[] scaleCalculator(int keyID, Note rootNote) {
-        int[] scale;// = new int[8];
 
+        //A new int[] is made to hold the notes calculated.
+        int[] scale;
+
+        //Depending on whether the key is major or minor as identified by it's 'keyID'.
         if (keyID - 100 > 100) {
+            //The Major scale pattern is chosen...
             scale = MAJORSCALEPATTERN;
         } else {
+            //Or the minor scale pattern is chosen.
             scale = MINORSCALEPATTERN;
         }
 
-        for (int i = 0; i < 8; i++) {//scale.length; i++) {
-            //Get value of Enum note and add it to the values in our scale to adapt to key.
+        //For each note in the 8 note scale...
+        for (int i = 0; i < 8; i++) {
+            //Get value of the Enum note and add it to the values in our scale to adapt to key.
             scale[i] = scale[i] + rootNote.ordinal();
         }
+        //Return the note values.
+        //As they are now, they will be interpreted with desired pitch by the noteOn() MIDI function.
+        //They are the complete notes, ready for playing.
         return scale;
     }
 
+    //Get and return every Key in an array...
     public static Key[] getKeyArray()
     {
         return new Key[]{CMajorScale, AMinorScale, GMajorScale, EMinorScale, DMajorScale, BMinorScale, AMajorScale, FSharpMinorScale, EMajorScale, CSharpMinorScale, BMajorScale, GSharpMinorScale, CFlatMajorScale, GFlatOrFSharpFlatMajorScale, GFlatOrFSharpMinorScale, CSharpMajorScale, DFlatMajorScale, BFlatMinorScale, AFlatMajorScale, FMinorScale, EFlatMajorScale, CMinorScale, BFlatMajorScale, GMinorScale, FMajorScale, DMinorScale};
