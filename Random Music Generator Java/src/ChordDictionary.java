@@ -17,8 +17,8 @@ public class ChordDictionary {
         chord_dictionary.put(4, (new int[]{3, 5, 7}));
         chord_dictionary.put(5, (new int[]{4, 6, 8}));
         chord_dictionary.put(6, (new int[]{5, 7, 9}));
-        chord_dictionary.put(7, (new int[]{6, 8, 10}));
-        chord_dictionary.put(8, (new int[]{7, 9, 11}));
+        //chord_dictionary.put(7, (new int[]{6, 8, 10}));
+        //chord_dictionary.put(8, (new int[]{7, 9, 11}));
     }
 }
 
