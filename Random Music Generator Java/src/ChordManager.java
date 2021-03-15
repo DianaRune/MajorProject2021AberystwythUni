@@ -36,9 +36,9 @@ public class ChordManager extends TrackManager {
             generatedNotes1[i] = generatedChords[i][0];
             generatedNotes2[i] = generatedChords[i][1];
             generatedNotes3[i] = generatedChords[i][2];
-            System.out.println("generatedChords[i][0] " + generatedChords[i][0]);
-            System.out.println("generatedChords[i][1] " + generatedChords[i][1]);
-            System.out.println("generatedChords[i][2] " + generatedChords[i][2]);
+            ////System.out.println("generatedChords[i][0] " + generatedChords[i][0]);
+            ////System.out.println("generatedChords[i][1] " + generatedChords[i][1]);
+            ////System.out.println("generatedChords[i][2] " + generatedChords[i][2]);
         }
 
         //The chord track rolls are loaded into with their generated note values (current octave adjusted) and velocities.
@@ -74,7 +74,7 @@ public class ChordManager extends TrackManager {
             for (int j = 0; j < ChordDictionary.chord_dictionary.get(chordIndex[i]).length; j++) {
                 //Adjust each note value of the chord, according to key (by adding the root note value).
                 chordNotes[i][j] = ChordDictionary.chord_dictionary.get(chordIndex[i])[j] + chosenKey.noteValues[0];
-                System.out.println("The chord notes for loading: " + chordNotes[i][j]);
+                ////System.out.println("The chord notes for loading: " + chordNotes[i][j]);
             }
         }
         //The chord notes are returned.
@@ -142,7 +142,7 @@ public class ChordManager extends TrackManager {
                 chordProgressionPattern = chordProgressionPattern + "1,";
             }
         }
-        System.out.println(chordProgressionPattern);
+        ////System.out.println(chordProgressionPattern);
         //The string is returned.
         return chordProgressionPattern;
     }

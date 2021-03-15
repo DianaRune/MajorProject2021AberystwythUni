@@ -9,11 +9,8 @@ import java.util.concurrent.TimeUnit;
 //This the core??? class for the music generating system.
 public class MusicManager implements MusicGen {
 
-    // ############################################################################################################################################################
-    // THE SECOND INDEX IS THE OFF BEAT
-    // ############################################################################################################################################################
-
-    ////public int noteRange = 127;
+    public static boolean uponPause = true;
+    public static long initialPauseTime;
 
     //Boolean that is switched by playing/pausing. It prevents the track access and note playing if paused.
     public static boolean isPlaying = true;
@@ -29,41 +26,14 @@ public class MusicManager implements MusicGen {
     public static int OCTAVE = 1;
 
     //The pace of the music, set here. (Alters the duration at which notes are played and removed from their arrays.)
-    public static int tempo = 50;
+    public static int tempo = 1000;
 
-    public static int[][] trackInstruments = new int[Voice.getVoiceArray().length][2];
+    public static int[][] voiceInstruments = new int[Voice.getVoiceArray().length][2];
 
     public static double songStart;
     public static double currentTime;
     public static double songDuration;
     public static String currentSongName = SongnameDictionary.generateSongName();
-
-    //The method that calls for music generation and controls all note playing, should run continuously from the first time it is called.
-    public static void musicPlayer(int tempo) throws MidiUnavailableException {
-        int[][] leadNoteToPlay1 = new int[40][2];
-        //THIS ISN'T GOING TO STAY HERE.
-        setKey(109); //109 & 210
-        //Get a synthesizer in order to access Java's MIDI channels and instruments.
-        Synthesizer s = MidiSystem.getSynthesizer();
-        //Open it.
-        s.open();
-        //Get the first MIDI channel in the synthesizer (each channel supports one instrument).
-        MidiChannel chan = s.getChannels()[0];
-        //Set instrument to that channel. (bank 0, instrument 0 (it's a piano)).
-        chan.programChange(0, 0);
-        System.out.println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-
-        //GET A NEW CHANNEL FOR OTHER TRACKS AND THEIR SET INSTRUMENTS...
-        int[][][] AllChordRolls = ChordManager.playChord();
-        int indexCount = 40;
-        int instrument = 0;
-        //While the music is not paused, the music should play continuously.
-        while (isPlaying) {
-            ////////////////////////////////////// WHERE EVERYTHING USED TO BELONG...
-        }
-        ////while piano roll not empty or Got weird un-playable note in it...
-        System.out.println("UGHHH EXCUSE ME... THIS ISN'T A PLAYABLE NOTE, THIS IS THE EMPTY PLACEHOLDER.");
-    }
 
 
     //velocity can be 0 when silence/////////////////////////////////////////////////////ACTUALLY IMPORTANT BECAUSE... EMPTY NOTES DON'T COUNT. OKAY?///////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -95,19 +65,15 @@ public class MusicManager implements MusicGen {
     }
 
     //This method gets the music's key...
-    public Key getKey() {
+    public static Key getKey() {
         //When this is called the current key is returned at that place.
         return currentKey;
     }
 
+    //This method pairs the selected voice values to their respective tracks, for calling, in an array.
     public static void setInstrument(int trackNumber, int bankValue, int programValue) {
-        System.out.println("Successful change.");
-        trackInstruments[trackNumber][0] = bankValue;
-        trackInstruments[trackNumber][1] = programValue;
-    }
-
-    public void playMusic() {
-        //LeadManager.playLead(key);
+        voiceInstruments[trackNumber][0] = bankValue;
+        voiceInstruments[trackNumber][1] = programValue;
     }
 
     public int getTimeSigTop() {
@@ -119,90 +85,97 @@ public class MusicManager implements MusicGen {
         return songProgress;
     }
 
-    public static void playSong() throws MidiUnavailableException {
+    //The method that calls for music generation and controls all note playing, should run continuously from the first time it is called.
+    public static void playMusic() throws MidiUnavailableException {
         int[][] leadNoteToPlay1 = new int[40][2];
-        //THIS ISN'T GOING TO STAY HERE.
-        setKey(109); //109 & 210
+        int[][][] AllChordRolls;
         //Get a synthesizer in order to access Java's MIDI channels and instruments.
         Synthesizer s = MidiSystem.getSynthesizer();
         //Open it.
         s.open();
-        //Get the first MIDI channel in the synthesizer (each channel supports one instrument).
+        //Get the MIDI channels in the synthesizer (each channel supports one instrument).
         MidiChannel leadChan = s.getChannels()[0];
         MidiChannel chordChan = s.getChannels()[1];
         MidiChannel drumChan = s.getChannels()[2];
 
-        //Set instrument to that channel. (bank 0, instrument 0 (it's a piano)).
-        leadChan.programChange(trackInstruments[0][0], trackInstruments[0][1]);
-        chordChan.programChange(trackInstruments[1][0], trackInstruments[1][1]);
-        drumChan.programChange(trackInstruments[2][0], trackInstruments[2][1]);
-        System.out.println("HEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEEREEEEEEEEEEEEEEEEEEEEEEEEEEEEEE");
-
         //GET A NEW CHANNEL FOR OTHER TRACKS AND THEIR SET INSTRUMENTS...
-        int[][][] AllChordRolls = ChordManager.playChord();
         int indexCount = 40;
-        int instrument = 0;
 
         currentSongName = SongnameDictionary.generateSongName();
         songStart = System.currentTimeMillis();
         songDuration = ThreadLocalRandom.current().nextDouble(10000, 30000); //should be ten and 30 seconds
 
-        while (isPlaying) {
+        while (true) {
             while (songDuration > currentTime) {
-                //Update instrument values.
-                leadChan.programChange(trackInstruments[0][0], trackInstruments[0][1]);
-                chordChan.programChange(trackInstruments[1][0], trackInstruments[1][1]);
-                drumChan.programChange(trackInstruments[2][0], trackInstruments[2][1]);
-                //Involve pause time...???????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
-                currentTime = System.currentTimeMillis() - songStart;
-                //Playmusic();'
-                //The queued notes to be played and generated and returned here.
-                //Fill empty/null value, fill array again...
-                if (indexCount == 40) {
-                    indexCount = 0;
-                    leadNoteToPlay1 = LeadManager.playLead();
-                }
-                //They are then played with the respective note pitch and velocity.
-                leadChan.noteOn(leadNoteToPlay1[0][0], leadNoteToPlay1[0][1]);
-                for (int i = 0; i < (leadNoteToPlay1.length - 1); i++) {
-                    leadNoteToPlay1[i][0] = leadNoteToPlay1[(i + 1)][0];
-                    leadNoteToPlay1[i][1] = leadNoteToPlay1[(i + 1)][1];
-                }
-                //There is an attempt to wait/'sleep' a set amount of time before going round the loop again and playing the next note.
-                try {
-                    TimeUnit.SECONDS.sleep(60 / (tempo * 2));
-                    //If this is not achievable though the loop being interrupted then...
-                } catch (InterruptedException ex) {
-                    //An error is printed.
-                    ex.printStackTrace();
-                }
-                indexCount++;
-                AllChordRolls = ChordManager.playChord();
+                long timeElapsedSincePause = System.currentTimeMillis() - initialPauseTime;
+                long adjustedCurrentTime = System.currentTimeMillis() - timeElapsedSincePause;
+                while (isPlaying) {
+                    uponPause = true;
+                    //Set instrument to that channel. (bank 0, instrument 0 (it's a piano)).
+                    //Update instrument values.
+                    leadChan.programChange(voiceInstruments[0][0], voiceInstruments[0][1]);
+                    chordChan.programChange(voiceInstruments[1][0], voiceInstruments[1][1]);
+                    drumChan.programChange(voiceInstruments[2][0], voiceInstruments[2][1]);
+                    currentTime = adjustedCurrentTime - songStart;
+                    //The queued notes to be played and generated and returned here.
+                    //Fill empty/null value, fill array again...
+                    if (indexCount == 40) {
+                        indexCount = 0;
+                        leadNoteToPlay1 = LeadManager.playLead();
+                        AllChordRolls = ChordManager.playChord();
+                    }
+                    //They are then played with the respective note pitch and velocity.
+                    leadChan.noteOn(leadNoteToPlay1[0][0], leadNoteToPlay1[0][1]);
+                    for (int i = 0; i < (leadNoteToPlay1.length - 1); i++) {
+                        leadNoteToPlay1[i][0] = leadNoteToPlay1[(i + 1)][0];
+                        leadNoteToPlay1[i][1] = leadNoteToPlay1[(i + 1)][1];
+                    }
 
-                chordChan.noteOn(AllChordRolls[0][0][0], AllChordRolls[0][0][1]);
-                //System.out.println("Chord 1 in music Manager: " + AllChordRolls[0][0][0]);
-                chordChan.noteOn(AllChordRolls[1][0][0], AllChordRolls[1][0][1]);
-                //System.out.println("Chord 2 in music Manager: " + AllChordRolls[1][0][0]);
-                chordChan.noteOn(AllChordRolls[2][0][0], AllChordRolls[2][0][1]);
-                //System.out.println("Chord 3 in music Manager: " + AllChordRolls[2][0][0]);
+                    indexCount++;
+                    AllChordRolls = ChordManager.playChord();
 
-                for (int i = 0; i < AllChordRolls.length; i++) {
-                    AllChordRolls[0][i][0] = AllChordRolls[0][(i + 1)][0];
-                    AllChordRolls[0][i][1] = AllChordRolls[0][(i + 1)][1];
-                    AllChordRolls[1][i][0] = AllChordRolls[1][(i + 1)][0];
-                    AllChordRolls[1][i][1] = AllChordRolls[1][(i + 1)][1];
-                    AllChordRolls[2][i][0] = AllChordRolls[2][(i + 1)][0];
-                    AllChordRolls[2][i][1] = AllChordRolls[2][(i + 1)][1];
+                    chordChan.noteOn(AllChordRolls[0][0][0], AllChordRolls[0][0][1]);
+                    //System.out.println("Chord 1 in music Manager: " + AllChordRolls[0][0][0]);
+                    chordChan.noteOn(AllChordRolls[1][0][0], AllChordRolls[1][0][1]);
+                    //System.out.println("Chord 2 in music Manager: " + AllChordRolls[1][0][0]);
+                    chordChan.noteOn(AllChordRolls[2][0][0], AllChordRolls[2][0][1]);
+                    //System.out.println("Chord 3 in music Manager: " + AllChordRolls[2][0][0]);
+
+                    for (int i = 0; i < AllChordRolls.length; i++) {
+                        AllChordRolls[0][i][0] = AllChordRolls[0][(i + 1)][0];
+                        AllChordRolls[0][i][1] = AllChordRolls[0][(i + 1)][1];
+                        AllChordRolls[1][i][0] = AllChordRolls[1][(i + 1)][0];
+                        AllChordRolls[1][i][1] = AllChordRolls[1][(i + 1)][1];
+                        AllChordRolls[2][i][0] = AllChordRolls[2][(i + 1)][0];
+                        AllChordRolls[2][i][1] = AllChordRolls[2][(i + 1)][1];
+                    }
+
+                    //There is an attempt to wait/'sleep' a set amount of time before going round the loop again and playing the next note.
+                    try {
+                        TimeUnit.MILLISECONDS.sleep(tempo);//60 / (tempo));
+                        //If this is not achievable though the loop being interrupted then...
+                    } catch (InterruptedException ex) {
+                        //An error is printed.
+                        ex.printStackTrace();
+                    }
                 }
-
-                instrument++;
-                try {
-                    TimeUnit.SECONDS.sleep(60 / tempo);          //////////////////////////////////////// divide by two because omg
-                } catch (InterruptedException ex) {
-                    ex.printStackTrace();
+                if (uponPause)
+                {
+                    initialPauseTime = System.currentTimeMillis();
+                    uponPause = false;
                 }
             }
         }
-        //OTHERWISE IS PUASED
     }
+
+    public static void setTempo(int tempoValue)
+    {
+        tempo = tempoValue;
+        System.out.println(tempo);
+    }
+
+    //public static void generateMusic()
+    //{
+
+    //}
 }

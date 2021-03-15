@@ -4,6 +4,8 @@ public class Key {
     public int ID;
     //It has an array of integer values representing the notes in the scale for each respective Key.
     public int[] noteValues;
+    //It has a boolean to determine whether the key is a major or minor one. (major == true, minor == false).
+    public boolean isMajor;
 
     //These patterns are different for the two major/minor keys and represent the notes pressed in the scale, starting at the root.
     //This follows the skip 2, 2, 1, 2, 2, 2, 1 pattern...
@@ -15,61 +17,60 @@ public class Key {
     //If number starts with 3 it's major that doesn't fit.
     //If number starts with 2, it's major and the number after is the order...
     //Minor is 3 digits starts with 1 and correlates with major.
-    public static Key CMajorScale = new Key(200, scaleCalculator(200, Note.C));// = new Key(200, new int[]{2, 2});
-    public static Key AMinorScale = new Key(100, scaleCalculator(100, Note.A));
-    public static Key GMajorScale = new Key(201, scaleCalculator(201, Note.G));
-    public static Key EMinorScale = new Key(101, scaleCalculator(101, Note.E));
-    public static Key DMajorScale = new Key(202, scaleCalculator(202, Note.D));
-    public static Key BMinorScale = new Key(102, scaleCalculator(102, Note.B));
-    public static Key AMajorScale = new Key(203, scaleCalculator(203, Note.A));
-    public static Key FSharpMinorScale = new Key(103, scaleCalculator(103, Note.FSHARP));
-    public static Key EMajorScale = new Key(204, scaleCalculator(204, Note.E));
-    public static Key CSharpMinorScale = new Key(104, scaleCalculator(104, Note.CSHARP));
-    public static Key BMajorScale = new Key(205, scaleCalculator(205, Note.B));
-    public static Key GSharpMinorScale = new Key(105, scaleCalculator(105, Note.GSHARP));
+    public static Key CMajorScale = new Key(200, scaleCalculator(true, Note.C), true);
+    public static Key AMinorScale = new Key(100, scaleCalculator(false, Note.A), false);
+    public static Key GMajorScale = new Key(201, scaleCalculator(true, Note.G), true);
+    public static Key EMinorScale = new Key(101, scaleCalculator(false, Note.E), false);
+    public static Key DMajorScale = new Key(202, scaleCalculator(true, Note.D), true);
+    public static Key BMinorScale = new Key(102, scaleCalculator(false, Note.B), false);
+    public static Key AMajorScale = new Key(203, scaleCalculator(true, Note.A), true);
+    public static Key FSharpMinorScale = new Key(103, scaleCalculator(false, Note.FSHARP), false);
+    public static Key EMajorScale = new Key(204, scaleCalculator(true, Note.E), true);
+    public static Key CSharpMinorScale = new Key(104, scaleCalculator(false, Note.CSHARP), false);
+    public static Key BMajorScale = new Key(205, scaleCalculator(true, Note.B), true);
+    public static Key GSharpMinorScale = new Key(105, scaleCalculator(false, Note.GSHARP), false);
+    //GSharpMinorScale/////
 
     //This is e-harmonic to the BMajorScale, so we have passed 'B's value' instead, because it is an existing note.
-    public static Key CFlatMajorScale = new Key(306, scaleCalculator(306, Note.B));
+    public static Key CFlatMajorScale = new Key(306, scaleCalculator(true, Note.B), true);
 
-    public static Key GFlatOrFSharpFlatMajorScale = new Key(207, scaleCalculator(207, Note.FSHARP));
+    public static Key GFlatOrFSharpMajorScale = new Key(207, scaleCalculator(true, Note.FSHARP), true);
     //SAME SCALE DESPITE MAJOR/MINOR
-    public static Key GFlatOrFSharpMinorScale = new Key(107, scaleCalculator(107, Note.FSHARP));
+    public static Key GFlatOrFSharpMinorScale = new Key(107, scaleCalculator(false, Note.FSHARP), false);
 
     //CSharp and DFlat are the same scale...
-    public static Key CSharpMajorScale = new Key(308, scaleCalculator(308, Note.CSHARP));
+    public static Key CSharpMajorScale = new Key(308, scaleCalculator(true, Note.CSHARP), true);
     //See? Just expressed differently.
-    public static Key DFlatMajorScale = new Key(209, scaleCalculator(209, Note.CSHARP));
+    public static Key DFlatMajorScale = new Key(209, scaleCalculator(true, Note.CSHARP), true);
 
-    public static Key BFlatMinorScale = new Key(109, scaleCalculator(109, Note.ASHARP));
-    public static Key AFlatMajorScale = new Key(210, scaleCalculator(210, Note.GSHARP));
-    public static Key FMinorScale = new Key(110, scaleCalculator(110, Note.F));
-    public static Key EFlatMajorScale = new Key(211, scaleCalculator(211, Note.DSHARP));
-    public static Key CMinorScale = new Key(111, scaleCalculator(111, Note.C));
-    public static Key BFlatMajorScale = new Key(212, scaleCalculator(212, Note.ASHARP));
-    public static Key GMinorScale = new Key(112, scaleCalculator(112, Note.G));
-    public static Key FMajorScale = new Key(213, scaleCalculator(213, Note.F));
-    public static Key DMinorScale = new Key(113, scaleCalculator(113, Note.D));
+    public static Key BFlatMinorScale = new Key(109, scaleCalculator(false, Note.ASHARP), false);
+    public static Key AFlatMajorScale = new Key(210, scaleCalculator(true, Note.GSHARP), true);
+    public static Key FMinorScale = new Key(110, scaleCalculator(false, Note.F), false);
+    public static Key EFlatMajorScale = new Key(211, scaleCalculator(true, Note.DSHARP), true);
+    public static Key CMinorScale = new Key(111, scaleCalculator(false, Note.C), false);
+    public static Key BFlatMajorScale = new Key(212, scaleCalculator(true, Note.ASHARP), true);
+    public static Key GMinorScale = new Key(112, scaleCalculator(false, Note.G), false);
+    public static Key FMajorScale = new Key(213, scaleCalculator(true, Note.F), true);
+    public static Key DMinorScale = new Key(113, scaleCalculator(false, Note.D), false);
 
     //The constructor method for the Key type.
-    public Key(int keyID, int[] keyNoteValues) {
+    public Key(int keyID, int[] keyNoteValues, boolean isMajorBool) {
         //It has an integer identifier.
         ID = keyID;
         //It has an array of integer values representing the notes in the scale for each respective Key.
         noteValues = keyNoteValues;
-
-        //########################################################################################################
-        //Do I need a third value to separate MAJOR/MINOR indicator and 'ID'?
-        //########################################################################################################
+        //It has a boolean to determine whether the key is a major or minor one. (major == true, minor == false).
+        isMajor = isMajorBool;
     }
 
     //This method returns the int array for the Key's scale notes based off of the root note in the key.
-    public static int[] scaleCalculator(int keyID, Note rootNote) {
+    public static int[] scaleCalculator(boolean majorBool, Note rootNote) {
 
         //A new int[] is made to hold the notes calculated.
         int[] scale;
 
         //Depending on whether the key is major or minor as identified by it's 'keyID'.
-        if (keyID - 100 > 100) {
+        if (majorBool == true) {
             //The Major scale pattern is chosen...
             scale = MAJORSCALEPATTERN;
         } else {
@@ -91,6 +92,6 @@ public class Key {
     //Get and return every Key in an array...
     public static Key[] getKeyArray()
     {
-        return new Key[]{CMajorScale, AMinorScale, GMajorScale, EMinorScale, DMajorScale, BMinorScale, AMajorScale, FSharpMinorScale, EMajorScale, CSharpMinorScale, BMajorScale, GSharpMinorScale, CFlatMajorScale, GFlatOrFSharpFlatMajorScale, GFlatOrFSharpMinorScale, CSharpMajorScale, DFlatMajorScale, BFlatMinorScale, AFlatMajorScale, FMinorScale, EFlatMajorScale, CMinorScale, BFlatMajorScale, GMinorScale, FMajorScale, DMinorScale};
+        return new Key[]{CMajorScale, AMinorScale, GMajorScale, EMinorScale, DMajorScale, BMinorScale, AMajorScale, FSharpMinorScale, EMajorScale, CSharpMinorScale, BMajorScale, GSharpMinorScale, CFlatMajorScale, GFlatOrFSharpMajorScale, GFlatOrFSharpMinorScale, CSharpMajorScale, DFlatMajorScale, BFlatMinorScale, AFlatMajorScale, FMinorScale, EFlatMajorScale, CMinorScale, BFlatMajorScale, GMinorScale, FMajorScale, DMinorScale};
     }
 }

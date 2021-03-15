@@ -11,7 +11,7 @@ interface MusicGen {
 
     //static void setKey(int chosenKeyID);
 
-    Key getKey();
+    //static Key getKey();
 
     //static void setInstrument(int trackNumber, int bankValue, int programValue) {
 
@@ -19,7 +19,7 @@ interface MusicGen {
 
     //static void setInstrument(int trackNumber, int bankValue, int programValue);
 
-    void playMusic();
+    //void playMusic();
 
     int getTimeSigTop();
 

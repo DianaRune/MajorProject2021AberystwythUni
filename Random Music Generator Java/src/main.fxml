@@ -11,16 +11,16 @@
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="panelRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: #000000;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<AnchorPane fx:id="panelRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyChangeFromArrowKeys" prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: #000000;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
    <children>
       <PerspectiveCamera fx:id="camera" layoutX="249.0" layoutY="274.0" />
-      <Sphere fx:id="icon" layoutX="250.0" layoutY="250.0" onKeyPressed="#pauseMusic" onMouseClicked="#tempoChange" radius="150.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="100.0" />
+      <Sphere fx:id="icon" layoutX="250.0" layoutY="250.0" onMouseClicked="#tempoChange" radius="150.0" AnchorPane.leftAnchor="100.0" AnchorPane.rightAnchor="100.0" AnchorPane.topAnchor="100.0" />
       <Cylinder fx:id="icon2" height="100.0" layoutX="190.0" layoutY="200.0" radius="10.0" rotate="45.0" />
       <Cylinder fx:id="icon4" height="100.0" layoutX="310.0" layoutY="200.0" radius="10.0" rotate="45.0" />
       <Cylinder fx:id="icon5" height="100" layoutX="250.0" layoutY="320.0" radius="10.0" rotate="90.0" />
       <Cylinder fx:id="icon3" height="100.0" layoutX="310.0" layoutY="200.0" radius="10.0" rotate="-45.0" />
       <Cylinder fx:id="icon1" height="100.0" layoutX="190.0" layoutY="200.0" radius="10.0" rotate="-45.0" />
-      <Button fx:id="pausePlayBtn" layoutX="428.0" layoutY="425.0" mnemonicParsing="false" onMouseClicked="#playPauseMusic" prefHeight="58.0" prefWidth="58.0" text="Button" />
+      <Button fx:id="pausePlayBtn" layoutX="401.0" layoutY="425.0" mnemonicParsing="false" onMouseClicked="#playPauseMusic" prefHeight="58.0" prefWidth="85.0" text="Play/Pause" />
       <TextArea fx:id="helpMenu" layoutX="14.0" layoutY="14.0" prefHeight="471.0" prefWidth="472.0" text="&#10;&#10;&#10;&#10;&#10;&#10;Welcome to APPLICATION_NAME.&#10;&#10;-------------------------------------------------------&#10;&#10;Random songs will be generated from your preferances!&#10;&#10;To play/pause the music click the button in the bottom right.&#10;&#10;To change the tempo, click the icon -&#10;it will take the difference in time between any two clicks.&#10;&#10;To change Key, press the right and left arrow keys -&#10;to cycle round the circle of fifths, clockwise and anticlockwise.&#10;&#10;To change the Instrument, open the 'change instrument' menu -&#10;Use the dropdown menus to select the instrument, it's new type and&#10;set the change." visible="false" />
       <Button fx:id="helpMenuCloseBtn" layoutX="409.0" layoutY="35.0" mnemonicParsing="false" onMouseClicked="#closeHelp" prefHeight="58.0" prefWidth="58.0" text="X" visible="false" />
       <Button fx:id="openHelpMenuBtn" layoutX="14.0" layoutY="425.0" mnemonicParsing="false" onMouseClicked="#openHelp" prefHeight="58.0" prefWidth="58.0" text="HELP" />

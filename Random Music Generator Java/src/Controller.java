@@ -1,12 +1,9 @@
 //Importing the JavaFX libraries required to access and alter the graphics...
-import javafx.animation.KeyFrame;
 import javafx.animation.ScaleTransition;
-import javafx.animation.Timeline;
-import javafx.application.Application;
-import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
@@ -18,7 +15,6 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 //Importing MIDI library for the MIDI unavailable exception.
 import javax.sound.midi.*;
-import javax.swing.*;
 
 //  MIDI
 //  source for a lot of this stuff: https://docs.oracle.com/javase/tutorial/sound/MIDI-synth.html
@@ -26,9 +22,10 @@ import javax.swing.*;
 //The controller class for my JavaFX UI. Also my main class where I will 'call MusicGen' functionality.
 public class Controller extends Thread {// implements Initializable {
 
-    public static long tempo = 60; //bpm
-    public static long lastClickMillis;
+    //public static int tempo = 60; //bpm
+    public static long lastClickMillis = 1000;
     //The FXML objects created and referenced and initialised for use here.
+    //@FXML allows the FXMLLoader to inject the pre-defined FXML values into the ones defined here, in the controller class.
     @FXML
     public AnchorPane panelRoot;
     @FXML
@@ -62,18 +59,199 @@ public class Controller extends Thread {// implements Initializable {
     @FXML
     public static ProgressBar progressBar = new ProgressBar();
 
-    static boolean playing = true;
+    //The index for the mood array, determines current mood.
+    public int mood = 0;
+    //The key IDs for their respective moods...
+    public final int HAPPY = 200; //Yellow
+    public final int CALM = 100; //Green
+    public final int LONGING = 101; //Blue
+    public final int WORSHIP = 203; //White
+    public final int DISCONTENTMENT = 103; //Grey
+    public final int GRIEF = 104; //Black
+    public final int RAGE = 205; //Red
+    public final int DEATH = 210; //DARK GREEN
+    public final int HOPE = 212; //PINK
+    //These are grouped in an array for access.
+    public int[] moods = {HAPPY, CALM, LONGING, WORSHIP, DISCONTENTMENT, GRIEF, RAGE, DEATH, HOPE};
 
-    public void main(String args[]) throws MidiUnavailableException {
-        musicPlayerThread thread = new musicPlayerThread();
+
+    //At runtime, the interface is prepared and the music is starts playing in its own thread.
+    @FXML
+    public void initialize() throws MidiUnavailableException {
+        //The appropriate objects are hidden/shown for the main menu to be shown.
+        helpMenu.setVisible(false);
+        helpMenuCloseBtn.setVisible(false);
+
+        instrumentMenu.setVisible(false);
+        instrumentMenuCloseBtn.setVisible(false);
+        voiceDropDown.setVisible(false);
+        trackDropDown.setVisible(false);
+        applyInstrumentBtn.setVisible(false);
+
+        //All the instruments/'voices' available are retrieved.
+        Voice[] voiceArray = Voice.getVoiceArray();
+        //For every voice...
+        for (int i = 0; i < voiceArray.length; i++) {
+            //The 'voiceDropDown' UI object is filled with the available voice names. (For user selection.)
+            voiceDropDown.getItems().add(voiceArray[i].name);
+        }
+        //The 'trackDropDown' UI object is filled with available 'track' names. (For user selection.)
+        trackDropDown.getItems().addAll("Lead", "Chords", "Drums");
+
+        //The initial voice is set for each track, they are unique to be appropriate and auditorily identifiable.
+        //Piano voice for lead track.
+        MusicManager.setInstrument(0, 0, 0);
+        //Clean guitar voice for chord track.
+        MusicManager.setInstrument(1, 0, 27);
+        //Synth drum voice for drum track.
+        MusicManager.setInstrument(2, 0, 118);
+
+        //The initial/default key is set for music generation to begin.
+        MusicManager.setKey(moods[mood]);
+
+        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        //Controller.songNameTxt.setText(MusicManager.currentSongName);
+
+        Thread thread = new Thread() {
+            @Override
+            public void run() {
+                try {
+                    MusicManager.playMusic();
+                    progressBar.setProgress(MusicManager.getSongProgress());
+                } catch (MidiUnavailableException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
         thread.start();
-        MusicManager.musicPlayer((int) tempo);
-        //NOTHING HAPPENS....... :3
     }
 
-    //This method changes the tempo value and is passed to 'MusicGen'.
+    public void main(String args[]) throws MidiUnavailableException {
+        //NOTHING HERE?
+    }
+
+    //The related objects are shown and ordered in order to display this 'help' menu.
+    public void openHelp(MouseEvent mouseEvent) {
+        helpMenu.setVisible(true);
+        helpMenu.toFront();
+        helpMenuCloseBtn.setVisible(true);
+        helpMenuCloseBtn.toFront();
+    }
+
+    //The related objects are hidden in order to close this 'help' menu.
+    public void closeHelp(MouseEvent mouseEvent) {
+        helpMenu.setVisible(false);
+        helpMenuCloseBtn.setVisible(false);
+    }
+
+    //The related objects are shown and ordered in order to display this 'set instrument' menu.
+    public void openInstrumentMenu(MouseEvent mouseEvent) {
+        instrumentMenu.setVisible(true);
+        instrumentMenu.toFront();
+        instrumentMenuCloseBtn.setVisible(true);
+        instrumentMenuCloseBtn.toFront();
+        trackDropDown.setVisible(true);
+        trackDropDown.toFront();
+        voiceDropDown.setVisible(true);
+        voiceDropDown.toFront();
+        applyInstrumentBtn.setVisible(true);
+        applyInstrumentBtn.toFront();
+    }
+
+    //The related objects are hidden in order to close this 'set instrument' menu.
+    public void closeInstrumentMenu(MouseEvent mouseEvent) {
+        instrumentMenu.setVisible(false);
+        instrumentMenuCloseBtn.setVisible(false);
+        trackDropDown.setVisible(false);
+        voiceDropDown.setVisible(false);
+        applyInstrumentBtn.setVisible(false);
+    }
+
+    //This method is attached to the play/pause button on the UI.
+    @FXML
+    public void playPauseMusic(MouseEvent mouseEvent) throws MidiUnavailableException {
+        //The 'isPLaying' value is inverted, this permits or prevents music generation and playing.
+        MusicManager.isPlaying = !MusicManager.isPlaying;
+    }
+
+    //This method is attached to the 'apply change' button on the 'set instrument' menu UI. It sets the user selected voice to user selected track.
+    public void setInstrumentChange() {
+        //Get all voices available.
+        Voice[] voiceArray = Voice.getVoiceArray();
+        //The string value is retrieved from the DropDown UI object.
+        String track = (String) trackDropDown.getValue();
+        //The string value is retrieved from the DropDown UI object.
+        String instrument = (String) voiceDropDown.getValue();
+        //The values that will passed to the Music Player are initialised...
+        int trackValue = 0;
+        int bankValue = 0;
+        int programValue = 0;
+
+        //For each voice available, the selected string is compared to the current voice name...
+        for (int i = 0; i < voiceArray.length; i++) {
+            if (voiceArray[i].name == instrument) {
+                //And if it is found all desired values are set.
+                bankValue = voiceArray[i].bank;
+                programValue = voiceArray[i].program;
+            }
+        }
+        //Depending on the track the user selected, this value is also passed.
+        if (track == "Lead") {
+            trackValue = 0;
+        }
+        if (track == "Chords") {
+            trackValue = 1;
+        }
+        if (track == "Drums") {
+            trackValue = 2;
+        }
+        //The selected voice is set to the selected track in the method these values are passed to.
+        MusicManager.setInstrument(trackValue, bankValue, programValue);
+    }
+
+    //If a key is pressed a listener calls this method...
+    //Select moods are cycled, like they would be on the circle of fifths.
+    //'D' to go clockwise and 'A' to reverse.
+    @FXML
+    void keyChangeFromArrowKeys(KeyEvent keyEvent) {
+        //If this key is 'D'...
+        if (keyEvent.getCode() == KeyCode.D)
+        {
+            //And the index value is equal to the maximum mood index...
+            if (mood == (moods.length - 1))
+            {
+                //Then the minimum index is set. (Makes the array go full circle.)
+                mood = 0;
+            }
+            //Otherwise...
+            else
+            {
+                //This index value should be incremented, and the next clockwise mood accessed.
+                mood++;
+            }
+        }
+        //Else if this key is 'A'...
+        else if (keyEvent.getCode() == KeyCode.A)
+        {
+            //And the index value is equal to the minimum mood index...
+            if (mood == 0)
+            {
+                //Then the maximum index is set. (Makes the array go full circle.)
+                mood = (moods.length - 1);
+            }
+            //Otherwise...
+            else
+            {
+                //This index value should be decremented, and the next anti-clockwise mood accessed.
+                mood--;
+            }
+        }
+        //This mood value (that represents a key ID,) is passed to be identified as a Key, set, and utilised in the MusicManager.
+        MusicManager.setKey(moods[mood]);
+    }
+
+    //This method changes the tempo value (milliseconds) and is passed to 'MusicGen'.
     public void tempoChange(MouseEvent mouseEvent) {
-        ////////////////////////////////////////////////////////////////////////////////////Make group?
         //Ensuring the sphere has returned to the initial size, so that two close clicks do not make a permanent size change...
         if (icon.getScaleX() == 1) {
             //Then the animation can be performed with these values, it will last 0.75 seconds and scale to this degree.
@@ -83,13 +261,12 @@ public class Controller extends Thread {// implements Initializable {
         //The time is taken since the last click, the difference in time since the last click is taken.
         lastClickMillis = (System.currentTimeMillis() - lastClickMillis);
         //The tempo must be kept within sensible values... (300bpm to 20bpm).
-        if (lastClickMillis > 250 || lastClickMillis < 3000) {
-            //Then it is passed to MusicGen to be set.
-            //The tempo is converted to a bpm value and is passed as an int.
-            MusicManager.tempo = (int) (60 / (lastClickMillis / 1000));
+        if (lastClickMillis > 50 && lastClickMillis < 3000) {  //// > 250
+            //Pass the millisecond value to the music playing class to indicate how long the thread should sleep for before the next note should be played.
+            MusicManager.setTempo((int) lastClickMillis);
         }
-        //I DON'T NEED THIS... RIGHT?
-        //lastClickMillis = System.currentTimeMillis();
+        //The time of this click is taken.
+        lastClickMillis = System.currentTimeMillis();
     }
 
     //This method controls an animation for the graphic icon.
@@ -108,204 +285,4 @@ public class Controller extends Thread {// implements Initializable {
         //It plays and reverses.
         scaleTransition.play();
     }
-
-    public static void progressBarSongLength() {
-        progressBar.setProgress(MusicManager.getSongProgress());
-    }
-
-    @FXML
-    public void initialize() throws MidiUnavailableException {
-        helpMenu.setVisible(false);
-        helpMenuCloseBtn.setVisible(false);
-
-        instrumentMenu.setVisible(false);
-        instrumentMenuCloseBtn.setVisible(false);
-        voiceDropDown.setVisible(false);
-        trackDropDown.setVisible(false);
-        applyInstrumentBtn.setVisible(false);
-
-        Voice[] voiceArray = Voice.getVoiceArray();
-        int numOfInstruments = voiceArray.length;
-        for (int i = 0; i < numOfInstruments; i++) {
-            voiceDropDown.getItems().add(voiceArray[i].name);
-        }
-        trackDropDown.getItems().addAll("Lead", "Chords", "Drums");
-
-        ///////////////////////////////////////////////////////////////////////////musicPlayerThread.run((int) tempo);
-        //MusicManager.musicPlayer((int) tempo);
-        System.out.println("PLEASE PLEASE GET TO THIS POINT");
-    }
-
-    @FXML
-    public void pauseMusic(KeyEvent key) {
-        switch (key.getCode()) {
-            case SPACE:
-                System.out.println("HA! you thought I could work. You were wrong idiot.");
-                break;
-            default:
-                break;
-        }
-    }
-
-    @FXML
-    public void playPauseMusic(MouseEvent mouseEvent) throws MidiUnavailableException {
-        playing = !playing;
-        if (playing == true) {
-            System.out.println("THIS IS PLAYING");
-            MusicManager.isPlaying = true;
-        } else {
-            System.out.println("THIS IS PAUSED");
-            MusicManager.isPlaying = false;
-        }
-    }
-
-    @FXML
-    public void setKey() {
-        //MusicManager.setKey();
-    }
-
-    public void openHelp(MouseEvent mouseEvent) {
-        helpMenu.setVisible(true);
-        helpMenu.toFront();
-        helpMenuCloseBtn.setVisible(true);
-        helpMenuCloseBtn.toFront();
-    }
-
-    public void closeHelp(MouseEvent mouseEvent) {
-        helpMenu.setVisible(false);
-        helpMenuCloseBtn.setVisible(false);
-    }
-
-    public void openInstrumentMenu(MouseEvent mouseEvent) {
-        instrumentMenu.setVisible(true);
-        instrumentMenu.toFront();
-        instrumentMenuCloseBtn.setVisible(true);
-        instrumentMenuCloseBtn.toFront();
-        trackDropDown.setVisible(true);
-        trackDropDown.toFront();
-        voiceDropDown.setVisible(true);
-        voiceDropDown.toFront();
-        applyInstrumentBtn.setVisible(true);
-        applyInstrumentBtn.toFront();
-    }
-
-    public void closeInstrumentMenu(MouseEvent mouseEvent) {
-        instrumentMenu.setVisible(false);
-        instrumentMenuCloseBtn.setVisible(false);
-        trackDropDown.setVisible(false);
-        voiceDropDown.setVisible(false);
-        applyInstrumentBtn.setVisible(false);
-    }
-
-    public void setInstrumentChange() {
-        Voice[] voiceArray = Voice.getVoiceArray();
-        String track = (String) trackDropDown.getValue();
-        String instrument = (String) voiceDropDown.getValue();
-        int trackValue = 0;
-        int bankValue = 0;
-        int programValue = 0;
-
-        for (int i = 0; i < voiceArray.length; i++) {
-            if (voiceArray[i].name == instrument) {
-                bankValue = voiceArray[i].bank;
-                programValue = voiceArray[i].program;
-            }
-        }
-        if (track == "Lead") {
-            trackValue = 0;
-        }
-        if (track == "Chords") {
-            trackValue = 1;
-        }
-        if (track == "Drums") {
-            trackValue = 2;
-        }
-        MusicManager.setInstrument(trackValue, bankValue, programValue);
-    }
-
 }
-
-//WITH lastTempoClickNewTime...
-/*
-//This method changes the tempo value and is passed to 'MusicGen'.
-    public void tempoChange(MouseEvent mouseEvent) {
-        ////////////////////////////////////////////////////////////////////////////////////Make group?
-        //Ensuring the sphere has returned to the initial size, so that two close clicks do not make a permanent size change...
-        if (icon.getScaleX() == 1) {
-            //Then the animation can be performed with these values, it will last 0.75 seconds and scale to this degree.
-            growSphereAnim(75, 0.15);
-        }
-
-        //The time is taken since the last click, the difference in time since the last click is taken.
-        lastTempoClickNewTime = (System.currentTimeMillis() - lastTempoClickMillis);
-        //The tempo must be kept within sensible values... (300bpm to 20bpm).
-        if (lastTempoClickNewTime > 250 || lastTempoClickNewTime < 3000) {
-            //Then it is passed to MusicGen to be set.
-            //The tempo is converted to a bpm value and is passed as an int.
-            MusicManager.tempo = (int) (60 / (lastTempoClickNewTime/1000));
-        }
-        //I DON'T NEED THIS... RIGHT?
-        //lastTempoClickMillis = System.currentTimeMillis();
-    }
- */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//INTERFACE
-
-        /*
-        MusicGen musicGen = new MusicGen() {
-
-            @Override
-            public void musicPlayer(int tempo) throws MidiUnavailableException {
-
-            }
-
-            @Override
-            public void setKey(int chosenKeyID) {
-
-            }
-
-            @Override
-            public Key getKey() {
-                return null;
-            }
-
-            @Override
-            public void setInstrument(int trackNumber, int bankValue, int programValue) {
-
-            }
-
-            @Override
-            public void playMusic() {
-
-            }
-
-            @Override
-            public int getTimeSigTop() {
-                return 0;
-            }
-        };
-    */
