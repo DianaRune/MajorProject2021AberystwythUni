@@ -17,41 +17,41 @@ public class Key {
     //If number starts with 3 it's major that doesn't fit.
     //If number starts with 2, it's major and the number after is the order...
     //Minor is 3 digits starts with 1 and correlates with major.
-    public static Key CMajorScale = new Key(200, scaleCalculator(true, Note.C), true);
-    public static Key AMinorScale = new Key(100, scaleCalculator(false, Note.A), false);
-    public static Key GMajorScale = new Key(201, scaleCalculator(true, Note.G), true);
-    public static Key EMinorScale = new Key(101, scaleCalculator(false, Note.E), false);
-    public static Key DMajorScale = new Key(202, scaleCalculator(true, Note.D), true);
-    public static Key BMinorScale = new Key(102, scaleCalculator(false, Note.B), false);
-    public static Key AMajorScale = new Key(203, scaleCalculator(true, Note.A), true);
-    public static Key FSharpMinorScale = new Key(103, scaleCalculator(false, Note.FSHARP), false);
-    public static Key EMajorScale = new Key(204, scaleCalculator(true, Note.E), true);
-    public static Key CSharpMinorScale = new Key(104, scaleCalculator(false, Note.CSHARP), false);
-    public static Key BMajorScale = new Key(205, scaleCalculator(true, Note.B), true);
-    public static Key GSharpMinorScale = new Key(105, scaleCalculator(false, Note.GSHARP), false);
+    public static Key CMajorScale = new Key(200, scaleCalculator(true, Pitch.C), true);
+    public static Key AMinorScale = new Key(100, scaleCalculator(false, Pitch.A), false);
+    public static Key GMajorScale = new Key(201, scaleCalculator(true, Pitch.G), true);
+    public static Key EMinorScale = new Key(101, scaleCalculator(false, Pitch.E), false);
+    public static Key DMajorScale = new Key(202, scaleCalculator(true, Pitch.D), true);
+    public static Key BMinorScale = new Key(102, scaleCalculator(false, Pitch.B), false);
+    public static Key AMajorScale = new Key(203, scaleCalculator(true, Pitch.A), true);
+    public static Key FSharpMinorScale = new Key(103, scaleCalculator(false, Pitch.FSHARP), false);
+    public static Key EMajorScale = new Key(204, scaleCalculator(true, Pitch.E), true);
+    public static Key CSharpMinorScale = new Key(104, scaleCalculator(false, Pitch.CSHARP), false);
+    public static Key BMajorScale = new Key(205, scaleCalculator(true, Pitch.B), true);
+    public static Key GSharpMinorScale = new Key(105, scaleCalculator(false, Pitch.GSHARP), false);
     //GSharpMinorScale/////
 
-    //This is e-harmonic to the BMajorScale, so we have passed 'B's value' instead, because it is an existing note.
-    public static Key CFlatMajorScale = new Key(306, scaleCalculator(true, Note.B), true);
+    //This is e-harmonic to the BMajorScale, so we have passed 'B's value' instead, because it is an existing pitch.
+    public static Key CFlatMajorScale = new Key(306, scaleCalculator(true, Pitch.B), true);
 
-    public static Key GFlatOrFSharpMajorScale = new Key(207, scaleCalculator(true, Note.FSHARP), true);
+    public static Key GFlatOrFSharpMajorScale = new Key(207, scaleCalculator(true, Pitch.FSHARP), true);
     //SAME SCALE DESPITE MAJOR/MINOR
-    public static Key GFlatOrFSharpMinorScale = new Key(107, scaleCalculator(false, Note.FSHARP), false);
+    public static Key GFlatOrFSharpMinorScale = new Key(107, scaleCalculator(false, Pitch.FSHARP), false);
 
     //CSharp and DFlat are the same scale...
-    public static Key CSharpMajorScale = new Key(308, scaleCalculator(true, Note.CSHARP), true);
+    public static Key CSharpMajorScale = new Key(308, scaleCalculator(true, Pitch.CSHARP), true);
     //See? Just expressed differently.
-    public static Key DFlatMajorScale = new Key(209, scaleCalculator(true, Note.CSHARP), true);
+    public static Key DFlatMajorScale = new Key(209, scaleCalculator(true, Pitch.CSHARP), true);
 
-    public static Key BFlatMinorScale = new Key(109, scaleCalculator(false, Note.ASHARP), false);
-    public static Key AFlatMajorScale = new Key(210, scaleCalculator(true, Note.GSHARP), true);
-    public static Key FMinorScale = new Key(110, scaleCalculator(false, Note.F), false);
-    public static Key EFlatMajorScale = new Key(211, scaleCalculator(true, Note.DSHARP), true);
-    public static Key CMinorScale = new Key(111, scaleCalculator(false, Note.C), false);
-    public static Key BFlatMajorScale = new Key(212, scaleCalculator(true, Note.ASHARP), true);
-    public static Key GMinorScale = new Key(112, scaleCalculator(false, Note.G), false);
-    public static Key FMajorScale = new Key(213, scaleCalculator(true, Note.F), true);
-    public static Key DMinorScale = new Key(113, scaleCalculator(false, Note.D), false);
+    public static Key BFlatMinorScale = new Key(109, scaleCalculator(false, Pitch.ASHARP), false);
+    public static Key AFlatMajorScale = new Key(210, scaleCalculator(true, Pitch.GSHARP), true);
+    public static Key FMinorScale = new Key(110, scaleCalculator(false, Pitch.F), false);
+    public static Key EFlatMajorScale = new Key(211, scaleCalculator(true, Pitch.DSHARP), true);
+    public static Key CMinorScale = new Key(111, scaleCalculator(false, Pitch.C), false);
+    public static Key BFlatMajorScale = new Key(212, scaleCalculator(true, Pitch.ASHARP), true);
+    public static Key GMinorScale = new Key(112, scaleCalculator(false, Pitch.G), false);
+    public static Key FMajorScale = new Key(213, scaleCalculator(true, Pitch.F), true);
+    public static Key DMinorScale = new Key(113, scaleCalculator(false, Pitch.D), false);
 
     //The constructor method for the Key type.
     public Key(int keyID, int[] keyNoteValues, boolean isMajorBool) {
@@ -64,7 +64,7 @@ public class Key {
     }
 
     //This method returns the int array for the Key's scale notes based off of the root note in the key.
-    public static int[] scaleCalculator(boolean majorBool, Note rootNote) {
+    public static int[] scaleCalculator(boolean majorBool, Pitch rootNote) {
 
         //A new int[] is made to hold the notes calculated.
         int[] scale;

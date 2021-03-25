@@ -3,7 +3,6 @@ import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Application;
 import javafx.concurrent.Task;
-import javafx.event.EventHandler;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Point3D;
 import javafx.scene.image.Image;
@@ -11,7 +10,7 @@ import javafx.scene.Group;
 import javafx.scene.Parent;
 import javafx.scene.PerspectiveCamera;
 import javafx.scene.Scene;
-import javafx.scene.input.KeyEvent;
+import javafx.scene.image.ImageView;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
 import javafx.scene.transform.Rotate;
@@ -31,14 +30,16 @@ public class MusicGeneratorGUI extends Application { //implements EventHandler<K
     static int currentColor = 0;
     //The current index for the 'illuminationMaps' array.
     static int currentMap = 0;
-    //The angle at which the icon should rotate on the x-axis for every 0.05 duration thread/Task cycle. (Until the 'totalAngle' boundaries are met and the integer sign is inverted).
+    //The angle at which the graphic should rotate on the x-axis for every 0.05 duration thread/Task cycle. (Until the 'totalAngle' boundaries are met and the integer sign is inverted).
     static int angle = 2;
-    //The accumulative angle that has been applied to the icon about the origin point.
+    //The accumulative angle that has been applied to the graphic about the origin point.
     static int totalAngle = 0;
-    //The y displacement that will be applied to the icon's 'face' alone. (Until the 'totalAngle' boundaries are met and the integer sign is inverted).
-    //(Makes the icon appear to nod.)
+    //The y displacement that will be applied to the graphic's 'face' alone. (Until the 'totalAngle' boundaries are met and the integer sign is inverted).
+    //(Makes the graphic appear to nod.)
     static int yTranslateAmount = 5;
 
+
+    //TextArea instrumentMenu;//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
     //Upon runtime this method is the first to execute after initialisation. It reads the FXML and creates the application window on the stage, an IOException is thrown in case the FXML document can't be read.
     //(Some graphical manipulation is also called here.) /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -53,7 +54,7 @@ public class MusicGeneratorGUI extends Application { //implements EventHandler<K
         //The scene is created and allows for an application window to be made.
         Scene scene = new Scene(root);
         mainStage.setScene(scene);
-        mainStage.setTitle("APPLICATION_NAME");
+        mainStage.setTitle("RNG MUSIC GENERATOR");
         //Sets the stage to be displayed on the screen to the user.
         mainStage.show();
 
@@ -61,34 +62,42 @@ public class MusicGeneratorGUI extends Application { //implements EventHandler<K
         scene.setCamera(theCamera);
         ////////scene.setCursor(0);
 
-        //The icon objects are grouped in order to manipulate them as one object...
-        Group iconGroup = new Group();
+        //The graphic objects are grouped in order to manipulate them as one object...
+        Group graphicGroup = new Group();
         //The individual objects are added to the 'Group' object.
-        iconGroup.getChildren().add(controller.icon);
-        iconGroup.getChildren().add(controller.icon1);
-        iconGroup.getChildren().add(controller.icon2);
-        iconGroup.getChildren().add(controller.icon3);
-        iconGroup.getChildren().add(controller.icon4);
-        iconGroup.getChildren().add(controller.icon5);
+        graphicGroup.getChildren().add(controller.graphicBody);
+        graphicGroup.getChildren().add(controller.graphic1);
+        graphicGroup.getChildren().add(controller.graphic2);
+        graphicGroup.getChildren().add(controller.graphic3);
+        graphicGroup.getChildren().add(controller.graphic4);
+        graphicGroup.getChildren().add(controller.graphic5);
         //The group is added to the children of the main controller, to allow display and enable functionality.
-        controller.panelRoot.getChildren().add(iconGroup);
+        controller.panelRoot.getChildren().add(graphicGroup);
 
-        //The icon's 'face' objects are grouped too, allowing for separate control over these object's alone.
-        Group iconFace = new Group();
-        iconFace.getChildren().add(controller.icon1);
-        iconFace.getChildren().add(controller.icon2);
-        iconFace.getChildren().add(controller.icon3);
-        iconFace.getChildren().add(controller.icon4);
-        iconFace.getChildren().add(controller.icon5);
+        //The graphic's 'face' objects are grouped too, allowing for separate control over these object's alone.
+        Group graphicFace = new Group();
+        graphicFace.getChildren().add(controller.graphic1);
+        graphicFace.getChildren().add(controller.graphic2);
+        graphicFace.getChildren().add(controller.graphic3);
+        graphicFace.getChildren().add(controller.graphic4);
+        graphicFace.getChildren().add(controller.graphic5);
         //The group is added to the children of the main controller, to allow display and enable functionality.
-        controller.panelRoot.getChildren().add(iconFace);
+        controller.panelRoot.getChildren().add(graphicFace);
+
+        PhongMaterial faceColour = new PhongMaterial();
+        faceColour.setDiffuseColor(Color.web("#000000"));
+        controller.graphic1.setMaterial(faceColour);
+        controller.graphic2.setMaterial(faceColour);
+        controller.graphic3.setMaterial(faceColour);
+        controller.graphic4.setMaterial(faceColour);
+        controller.graphic5.setMaterial(faceColour);
 
         Color[] hexColors = {Color.web("#a1ffd5"), Color.web("#a1ffeb"), Color.valueOf("#a1fffc"), Color.valueOf("#a1ecff"), Color.valueOf("#a1d5ff"), Color.valueOf("#a1c0ff"), Color.valueOf("#a1acff"), Color.valueOf("#b1a1ff"), Color.valueOf("#c3a1ff"), Color.valueOf("#d6a1ff"), Color.valueOf("#f2a1ff"), Color.valueOf("#ffa1f2")};
         Image[] illuminationMaps = {new Image(getClass().getResourceAsStream("Sparkle1.jpg")), new Image(getClass().getResourceAsStream("Sparkle2.jpg")), new Image(getClass().getResourceAsStream("Sparkle3.jpg"))};
-        PhongMaterial phongMaterial = new PhongMaterial();
+        PhongMaterial bodyMaterial = new PhongMaterial();
 
-        //This is an infinite thread called a 'Task' to change the icon 'body's' colour and 'pattern'.
-        Task<String> iconColour = new Task<>() {
+        //This is an infinite thread called a 'Task' to change the graphic 'body's' colour and 'pattern'.
+        Task<String> graphicColour = new Task<>() {
             @Override
             protected synchronized String call() {
                 //The timeline that controls thread duration for our 'animation'.
@@ -99,15 +108,15 @@ public class MusicGeneratorGUI extends Application { //implements EventHandler<K
                                 Duration.seconds(0.3),
                                 (event ->
                                 {
-                                    //icon's 'body' is set to.
+                                    //graphic's 'body' is set to.
                                     //The chosen colour from the colour array is being applied to the material.
-                                    phongMaterial.setDiffuseColor(hexColors[currentColor]);
+                                    bodyMaterial.setDiffuseColor(hexColors[currentColor]);
                                     //The chosen 'map' from the illumination-map array is being applied to the material.
                                     //The illumination map is an image indicating which areas of the textures should be bright.
                                     //(The images being applied will have the pattern of white sparkles on the object's surface.)
-                                    phongMaterial.setSelfIlluminationMap(illuminationMaps[currentMap]);
+                                    bodyMaterial.setSelfIlluminationMap(illuminationMaps[currentMap]);
                                     //The material is applied to the object.
-                                    controller.icon.setMaterial(phongMaterial);
+                                    controller.graphicBody.setMaterial(bodyMaterial);
                                     //The map array index is incremented so another map is used on the next cycle.
                                     currentMap++;
                                     //If the map index is out of bounds of it's array, and there is no 'next map'...
@@ -145,16 +154,16 @@ public class MusicGeneratorGUI extends Application { //implements EventHandler<K
             }
         };
         //############################################################ Difference?
-        new Thread(iconColour).start();
+        new Thread(graphicColour).start();
 
         //The boundaries that the accumulative angle, 'totalAngle', should not exceed.
-        //The maximum, the amount the icon is allowed to look up.
+        //The maximum, the amount the graphic is allowed to look up.
         int MAXIMUMANGLE = 20;
-        //The minimum, the amount the icon is allowed to look down.
+        //The minimum, the amount the graphic is allowed to look down.
         int MINIMUMANGLE = -20;
 
-        //This is an infinite thread called a 'Task' to simulate graphical motion by updating the icon group's position and rotation.
-        Task<String> iconMotion = new Task<>() {
+        //This is an infinite thread called a 'Task' to simulate graphical motion by updating the graphic group's position and rotation.
+        Task<String> graphicMotion = new Task<>() {
             @Override
             protected synchronized String call() {
                 //The timeline that controls thread duration for our 'animation'.
@@ -165,34 +174,34 @@ public class MusicGeneratorGUI extends Application { //implements EventHandler<K
                                 Duration.seconds(0.05),
                                 (event ->
                                 {
-                                    //Create new 'Rotate' object to apply 'angle' to the icon's x axis.
+                                    //Create new 'Rotate' object to apply 'angle' to the graphic's x axis.
                                     Rotate rotate = new Rotate(angle, new Point3D(1, 0, 0));
                                     //The pivot that the object will be rotated around is set.
                                     rotate.setPivotX(150);
                                     rotate.setPivotY(225);
                                     //The rotation is applied to the objects.
-                                    iconGroup.getTransforms().add(rotate);
-                                    iconFace.getTransforms().add(rotate);
+                                    graphicGroup.getTransforms().add(rotate);
+                                    graphicFace.getTransforms().add(rotate);
                                     //The total angle (the total of 'angles' that have been applied in this endless thread already.) determines when the 'animation'/rotation effect should reverse.
                                     totalAngle = totalAngle + angle;
 
-                                    //The translation is applied to the icon's 'face' alone.
-                                    //Create new 'Rotate' object to apply 'angle' to the icon's face y axis...
+                                    //The translation is applied to the graphic's 'face' alone.
+                                    //Create new 'Rotate' object to apply 'angle' to the graphic's face y axis...
                                     //This makes the graphic appear to nod as the face will move up and down where, without, it would appear to do stationary X axis rotation without displacement.
                                     Translate translate = new Translate();
                                     //The y translation is set...
                                     translate.setY(yTranslateAmount);
-                                    iconFace.getTransforms().add(translate);
+                                    graphicFace.getTransforms().add(translate);
 
                                     //If the total angle applied has met or exceeded the desired rotation boundaries, we want the opposite action to occur next, until either condition is met again...
-                                    //Therefore, if the icon is looking up at its maximum...
+                                    //Therefore, if the graphic is looking up at its maximum...
                                     if (totalAngle >= MAXIMUMANGLE) {
                                         //It set set to look down until the angle reaches the minimum...
                                         //The negative angle amount allows for a negative x axis rotation.
                                         angle = -angle;
                                         //The negative translation amount allows for a negative y axis translation.
                                         yTranslateAmount = -yTranslateAmount;
-                                        //Then if the icon is looking down at its minimum, it is set to look up again.
+                                        //Then if the graphic is looking down at its minimum, it is set to look up again.
                                     } else if (totalAngle <= MINIMUMANGLE) {
                                         //The positive angle amount allows for a positive x axis rotation.
                                         angle = -angle;
@@ -209,7 +218,7 @@ public class MusicGeneratorGUI extends Application { //implements EventHandler<K
                 return null;
             }
         };
-        new Thread(iconMotion).start();
+        new Thread(graphicMotion).start();
     }
 
     //The main function called launches the FXML generation.

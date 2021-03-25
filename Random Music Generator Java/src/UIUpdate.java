@@ -24,8 +24,8 @@ public class UIUpdate extends Thread {
                             Duration.seconds(0.05),
                             (event ->
                             {
-                                Controller.songNameTxt.setText(MusicManager.currentSongName);
-                                Controller.progressBar.setProgress(MusicManager.getSongProgress());
+                                //Controller.songNameTxt.setText(MusicManager.currentSongName);
+                                //Controller.progressBar.setProgress(MusicManager.getSongProgress());
                             }
                             )
                     )

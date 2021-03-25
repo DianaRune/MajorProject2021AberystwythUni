@@ -3,19 +3,115 @@ import java.util.concurrent.ThreadLocalRandom;
 //The leadManager of type 'Track', will manage and generate the lead instrument component of the music for playing.
 public class LeadManager extends TrackManager {
 
+    public static int TRACKLENGTH = 40;
+
+    public static int leadPatternSeed = 0;
+
     //For example, lead1Roll[0][0] = note pitch and lead1Roll[0][1] = its note's velocity.
-    public static int[][] lead1Roll = new int[40][2];
-    public static int instrument = 0;
+    public static Note[] lead1Roll = new Note[TRACKLENGTH];
+   ///// public static int instrument = 0;
 
     //Called in the 'MusicManager', will generate and return the lead note array(s) to be played.
-    public static int[][] playLead() {
+    public static Note[][] playLead() {
         //Fills the array with empty values in order to give it length and determine there isn't real notes under the index.
         TrackManager.fillRollWithEmptyValues(lead1Roll);
         //The lead track roll is are loaded into with their generated note values (current key and octave adjusted) and velocities.
         //Return all the leadRoll array(s) to the MusicManager for playing.
-        return TrackManager.loadAndPlayRoll(lead1Roll, rollPatterns(TrackManager.getTimeSigTop(), TrackManager.getKey()));
+        Note[][] allLeadTracks = {TrackManager.loadRoll(lead1Roll, rollPatterns(TrackManager.getTimeSigTop(), TrackManager.getKey()))};
+        return allLeadTracks;
     }
 
+    //The method that generates the patterns and order of the notes to be played. It makes pattern around the number of beats/notes in the bar and the current key.
+    public static Note[] rollPatterns(int timeSigTop, Key currentKey) {
+        //The notes in the current key are retrieved and fed into an array to for access.
+        int[] noteValues = currentKey.noteValues;
+        //The array to be returned is declared and is the same length as the roll, to hold notes chosen from 'noteValues'.
+        Note[] returningPattern = new Note[TRACKLENGTH];
+
+        //The patternIndex is the index of the array being filled...
+        int patternIndex = 0;
+        //This is cycled until filled.
+        while (patternIndex < TRACKLENGTH) {
+            //A random value is generated in the range of the 'noteValues' array index, this allows for a random note to be accessed from it.
+            int noteValuesRandomIndex = ThreadLocalRandom.current().nextInt(0, 7);
+            //These two values will be the starting point for pattern generation.
+            //The initial random note is accessed.
+            int baseRandomNote = noteValues[noteValuesRandomIndex];
+            //The second random note is accessed like the first.
+            int baseRandomNote2 = noteValues[ThreadLocalRandom.current().nextInt(0, 7)];//currentKey.noteValues[ThreadLocalRandom.current().nextInt(0, 7)];
+            //################//This values is calculated and fed into the switch-case to determine what pattern should be loaded into the array next. (Bound is equal to the number of cases.)
+            //################int randomPatternChosen = ThreadLocalRandom.current().nextInt(0, 2 + 1);
+
+            //For the length of the number of 'beats in a bar', the returning array is filled with the select pattern.
+            //(It is not desirable to fill with patterns that disrupt this structure as the system is not ready for that complexity.)
+            for (int i = 0; i < timeSigTop; i++) {
+                //Depending on the pattern entered. The following patterns could be loaded.
+                switch (leadPatternSeed) {
+                    //Straight same (base) note in bar...
+                    case 0:
+                        returningPattern[patternIndex].pitch = baseRandomNote;
+                        returningPattern[patternIndex].duration = 500;
+                        if (patternIndex == timeSigTop) {
+                            returningPattern[patternIndex].duration = 1500;
+                        }
+                        break;
+                    //Random up/down note...
+                    case 1:
+                        returningPattern[patternIndex].pitch = baseRandomNote;
+                        //A random note in the bar is chosen to undergo a pitch up/down alteration by one note.
+                        int randomNoteInBar = ThreadLocalRandom.current().nextInt(0, timeSigTop);
+                        //If this random bar note index correlates to the current bar note index and is in the range of note values...
+                        if (i == randomNoteInBar && noteValuesRandomIndex < 8) { //////////////////////////////////////////////////////////if (patternIndex == randomNoteInBar && noteValuesRandomIndex < 8) {
+                            //There is a chance the note value will go up or down by a value.
+                            if (Math.random() >= 0.5) {
+                                returningPattern[patternIndex].pitch = noteValues[noteValuesRandomIndex + 1];
+                            } else if (noteValuesRandomIndex > 0) {
+                                returningPattern[patternIndex].pitch = noteValues[noteValuesRandomIndex - 1];
+                            }
+                        }
+                        returningPattern[patternIndex].duration = 500;
+                        if (patternIndex == timeSigTop) {
+                            returningPattern[patternIndex].duration = 1500;
+                        }
+                        break;
+                    //Base note, random up/down, base note, second random base note...
+                    case 2:
+                        returningPattern[patternIndex].pitch = baseRandomNote;
+                        if (i == 2 && noteValuesRandomIndex < 8) {
+                            if (Math.random() <= 0.5) {
+                                returningPattern[patternIndex].pitch = noteValues[noteValuesRandomIndex + 1];
+                            } else if (noteValuesRandomIndex > 0) {
+                                returningPattern[patternIndex].pitch = noteValues[noteValuesRandomIndex - 1];
+                            }
+                        }
+                        if ((patternIndex % 4 == 0) && noteValuesRandomIndex < 8) {
+                            returningPattern[patternIndex].pitch = baseRandomNote2;
+                        }
+                        returningPattern[patternIndex].duration = 500;
+                        if (patternIndex == timeSigTop) {
+                            returningPattern[patternIndex].duration = 1500;
+                        }
+                        break;
+                    default:
+                        return null;
+                }
+                patternIndex++;
+            }
+        }
+        return returningPattern;
+    }
+
+
+
+
+
+
+
+
+
+
+
+    /*
     //The method that generates the patterns and order of the notes to be played. It makes pattern around the number of beats/notes in the bar and the current key.
     public static int[] rollPatterns(int timeSigTop, Key currentKey) {
         //The notes in the current key are retrieved and fed into an array to for access.
@@ -83,6 +179,19 @@ public class LeadManager extends TrackManager {
         }
         return returningPattern;
     }
+     */
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         //#############################################################################################################

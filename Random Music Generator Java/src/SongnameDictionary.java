@@ -12,6 +12,8 @@ public class SongnameDictionary {
 
     public static Map<Integer, String> adjective_dictionary = new IdentityHashMap<>();
 
+    public static SongnameDictionary currentSongName;
+
     //And filled with values.
     public static String fillAndGetAdjDictionary() {
         //The int[] value is the note structure for the chord and will be applied to the index for 'Key' 'noteValues'.
@@ -21,7 +23,7 @@ public class SongnameDictionary {
         adjective_dictionary.put(3, "Gooey");
         adjective_dictionary.put(4, "Sad");
         adjective_dictionary.put(5, "Happy");
-        int randomIndex = ThreadLocalRandom.current().nextInt(0, adjective_dictionary.size());////////////////////////////////////////////////////////////////////////////////////////   -1   ??
+        int randomIndex = ThreadLocalRandom.current().nextInt(0, adjective_dictionary.size());
         String returnAdj = adjective_dictionary.get(randomIndex);
         return returnAdj;
     }
@@ -41,8 +43,6 @@ public class SongnameDictionary {
         String returnNoun = noun_dictionary.get(randomIndex);
         return returnNoun;
     }
-
-    public static SongnameDictionary currentSongName = new SongnameDictionary(the, fillAndGetAdjDictionary(), fillAndGetAdjDictionary(), fillAndGetNounDictionary());
 
     public SongnameDictionary(String theWord, String firstAdj, String minimumTitle, String nounEnd) {
         if (Math.random() <= 0.25) {
@@ -64,6 +64,8 @@ public class SongnameDictionary {
     }
 
         public static String generateSongName(){
+        currentSongName = new SongnameDictionary(the, fillAndGetAdjDictionary(), fillAndGetAdjDictionary(), fillAndGetNounDictionary());
+
         String returnName = "";
         if (currentSongName.the != "")
         {

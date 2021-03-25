@@ -3,6 +3,82 @@ import java.util.Arrays;
 //Track Manager is the abstract parent class for 'Tracks' which extend from it...
 public abstract class TrackManager {
 
+    //IMPLEMETS TRACK IN MUSCICMANAGER TRACK=NEWTRACK("TYPE") EVENTUALLY?
+
+    //Use 'reflections' to see how many classes extend this class.............................################################################################################################################################################
+    //For setting instruments.
+
+    //Fills the arrays with empty values in order to give them length and determine there aren't real notes under the index.
+    public static int EMPTYFIELD = -1;
+
+    //An int[][] which will contain generated queued notes to be played in a FIFO fashion.
+    //The first index is just a sensible length, generally 10 bars and the second represents the two values to be read for each index/note, 'pitch' and 'velocity'.
+    //For example, trackRoll[0][0] = first note's pitch and trackRoll[0][1] = first note's velocity.
+    public static Note[] trackRoll;
+
+    //This method queues the generated notes (passed a parameter) into the empty fields of the trackRoll, and returns it.
+    public static Note[] loadRoll(Note[] trackRoll, Note[] notesGenerated) {
+        //Will queue for the length of trackRoll...
+        for (int i = 0; i < trackRoll.length; i++) {
+            //If there is an EMPTYFIELD available in the location...
+            if (trackRoll[i].pitch == EMPTYFIELD && trackRoll[i].velocity == EMPTYFIELD && trackRoll[i].duration == EMPTYFIELD) {
+                //And the generated melody length is not exceeded.
+                if (i < notesGenerated.length) {
+                    //The index's pitch value is equal to the base pitch and the current octave value added.
+                    trackRoll[i].pitch = (notesGenerated[i].pitch + 12 * MusicManager.OCTAVE);
+                    //The index's velocity value is 100.
+                    trackRoll[i].velocity = 100;///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                }
+            }
+        }
+        //Return the notes for playing...
+        return trackRoll;
+    }
+
+    //This method fills the trackRoll with empty values for the generated music to overwrite.
+    public static void fillRollWithEmptyValues(Note[] trackRoll)
+    {
+        //Fill every array index with 'empty values'
+        for (int i = 0; i < trackRoll.length; i++)
+        {
+            trackRoll[i].pitch = EMPTYFIELD;
+            trackRoll[i].velocity = EMPTYFIELD;
+            trackRoll[i].duration = EMPTYFIELD;
+        }
+    }
+
+    //This method gets the music's key...
+    public static Key getKey()
+    {
+        //When this is called the current key is returned at that place.
+        return MusicManager.currentKey;
+    }
+
+    //This method gets the music's time signature (top)...
+    public static int getTimeSigTop()
+    {
+        //When this is called the time signature (top) is returned at that place.
+        return MusicManager.timeSignatureTop;
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
+import java.util.Arrays;
+
+//Track Manager is the abstract parent class for 'Tracks' which extend from it...
+public abstract class TrackManager {
 
     //IMPLEMETS TRACK IN MUSCICMANAGER TRACK=NEWTRACK("TYPE") EVENTUALLY?
 
@@ -15,16 +91,16 @@ public abstract class TrackManager {
     //An int[][] which will contain generated queued notes to be played in a FIFO fashion.
     //The first index is just a sensible length, generally 10 bars and the second represents the two values to be read for each index/note, 'pitch' and 'velocity'.
     //For example, trackRoll[0][0] = first note's pitch and trackRoll[0][1] = first note's velocity.
-    public static int[][] trackRoll = new int[40][2];
+    public static Note trackRoll;
 
     //The instrument/voice the track will have that will be applied to the channel it is played in.
     ////I'M NOT SURE THIS SHOULD BE HERE
     public static int instrument;
 
     //This method queues the generated notes (passed a parameter) into the empty fields of the trackRoll, and returns it.
-    public static int[][] loadAndPlayRoll(int[][] trackRoll, int[] notesGenerated) {
+    public static int[][] loadRoll(int[][] trackRoll, int[] notesGenerated) {
         //Will queue for the length of trackRoll...
-        for (int i = 0; i < trackRoll.length; i++) {
+        for (int i = 0; i < trackRoll.length; i++) {                                                                             //////////  trackRoll.notes.length
             //If there is an EMPTYFIELD available in the location...
             if (trackRoll[i][0] == EMPTYFIELD && trackRoll[i][1] == EMPTYFIELD) {
                 //And the generated melody length is not exceeded.
@@ -51,23 +127,15 @@ public abstract class TrackManager {
         }
     }
 
+    public static void setVelocityForTrack()
+    {
 
+    }
 
+    public static void setDurationForTrack()
+    {
 
-    //public static void fillRollWithPattern(){
-    //    int patternIndex = 0;
-    //    while (patternIndex <= 40) {
-    //}
-
-    //THESE METHODS??
-
-
-    //public abstract int[] rollPatterns(int randomPatternChosen, int timeSigTop, Key currentKey);
-
-
-
-
-
+    }
 
     //This method gets the music's key...
     public static Key getKey()
@@ -84,3 +152,4 @@ public abstract class TrackManager {
     }
 
 }
+ */

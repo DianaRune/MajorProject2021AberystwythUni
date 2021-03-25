@@ -3,6 +3,8 @@ import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
@@ -15,6 +17,9 @@ import javafx.scene.text.Text;
 import javafx.util.Duration;
 //Importing MIDI library for the MIDI unavailable exception.
 import javax.sound.midi.*;
+import javax.swing.*;
+
+import static java.lang.StrictMath.round;
 
 //  MIDI
 //  source for a lot of this stuff: https://docs.oracle.com/javase/tutorial/sound/MIDI-synth.html
@@ -29,25 +34,35 @@ public class Controller extends Thread {// implements Initializable {
     @FXML
     public AnchorPane panelRoot;
     @FXML
-    public Sphere icon;
+    public Sphere graphicBody;
     @FXML
-    public Cylinder icon1;
+    public Cylinder graphic1;
     @FXML
-    public Cylinder icon2;
+    public Cylinder graphic2;
     @FXML
-    public Cylinder icon3;
+    public Cylinder graphic3;
     @FXML
-    public Cylinder icon4;
+    public Cylinder graphic4;
     @FXML
-    public Cylinder icon5;
+    public Cylinder graphic5;
     @FXML
     public TextArea helpMenu;
     @FXML
     public Button helpMenuCloseBtn;
     @FXML
-    public TextArea instrumentMenu;
+    public Button openHelpMenuBtn;
+    @FXML
+    public Button openInstrumentMenuBtn;
+    @FXML
+    public Button pausePlayBtn;
     @FXML
     public Button instrumentMenuCloseBtn;
+    @FXML
+    public Button FFBtn;
+    @FXML
+    public Button RWBtn;
+    @FXML
+    public TextArea instrumentMenu;
     @FXML
     public ComboBox voiceDropDown;
     @FXML
@@ -55,29 +70,30 @@ public class Controller extends Thread {// implements Initializable {
     @FXML
     public Button applyInstrumentBtn;
     @FXML
-    public static Text songNameTxt;
+    public Text songNameTxt;
     @FXML
-    public static ProgressBar progressBar = new ProgressBar();
+    public ProgressBar progressBar = new ProgressBar();
 
     //The index for the mood array, determines current mood.
     public int mood = 0;
     //The key IDs for their respective moods...
-    public final int HAPPY = 200; //Yellow
+    public final int HAPPY = 200; //Orange
     public final int CALM = 100; //Green
     public final int LONGING = 101; //Blue
-    public final int WORSHIP = 203; //White
     public final int DISCONTENTMENT = 103; //Grey
     public final int GRIEF = 104; //Black
     public final int RAGE = 205; //Red
-    public final int DEATH = 210; //DARK GREEN
-    public final int HOPE = 212; //PINK
+    public final int DEATH = 210; //Purple
+    public final int HOPE = 212; //Pink
     //These are grouped in an array for access.
-    public int[] moods = {HAPPY, CALM, LONGING, WORSHIP, DISCONTENTMENT, GRIEF, RAGE, DEATH, HOPE};
+    public int[] moods = {HAPPY, CALM, LONGING, DISCONTENTMENT, GRIEF, RAGE, DEATH, HOPE};
 
+    public double progressValue;
+    public String songNameText;
 
     //At runtime, the interface is prepared and the music is starts playing in its own thread.
     @FXML
-    public void initialize() throws MidiUnavailableException {
+    public void initialize() {
         //The appropriate objects are hidden/shown for the main menu to be shown.
         helpMenu.setVisible(false);
         helpMenuCloseBtn.setVisible(false);
@@ -109,21 +125,58 @@ public class Controller extends Thread {// implements Initializable {
         //The initial/default key is set for music generation to begin.
         MusicManager.setKey(moods[mood]);
 
-        ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        //Controller.songNameTxt.setText(MusicManager.currentSongName);
+        progressBar.setStyle("-fx-accent: black;");
+        helpMenuCloseBtn.setStyle("-fx-background-color:transparent");
+        instrumentMenuCloseBtn.setStyle("-fx-background-color:transparent");
+        openHelpMenuBtn.setStyle("-fx-background-color:transparent");
+        pausePlayBtn.setStyle("-fx-background-color:transparent");
+        openInstrumentMenuBtn.setStyle("-fx-background-color:transparent");
+        FFBtn.setStyle("-fx-background-color:transparent");
+        RWBtn.setStyle("-fx-background-color:transparent");
+
+        instrumentMenu.setStyle("-fx-control-inner-background:black");
+        helpMenu.setStyle("-fx-control-inner-background:black");
+
+        Image pauseBtnImage = new Image("Btn_Icons/PauseBtnIcon2.png");
+        pausePlayBtn.setGraphic(new ImageView(pauseBtnImage));
+        Image helpBtnImage = new Image("Btn_Icons/HelpBtnIcon2.png");
+        openHelpMenuBtn.setGraphic(new ImageView(helpBtnImage));
+        Image closeBtnImage = new Image("Btn_Icons/Close_Btn_Icon.png");
+        helpMenuCloseBtn.setGraphic(new ImageView(closeBtnImage));
+        instrumentMenuCloseBtn.setGraphic(new ImageView(closeBtnImage));
+        //Image playBtnImage = new Image("Btn_Icons/PlayBtnIcon2.png");
+        //controller.pausePlayBtn.setGraphic(new ImageView(playBtnImage));
+        Image instrumentBtnImage = new Image("Btn_Icons/InstrumentBtnIcon.png");
+        openInstrumentMenuBtn.setGraphic(new ImageView(instrumentBtnImage));
+        Image rwBtnImage = new Image("Btn_Icons/RW_Btn.png");
+        RWBtn.setGraphic(new ImageView(rwBtnImage));
+        Image ffBtnImage = new Image("Btn_Icons/FF_Btn.png");
+        FFBtn.setGraphic(new ImageView(ffBtnImage));
 
         Thread thread = new Thread() {
             @Override
             public void run() {
                 try {
                     MusicManager.playMusic();
-                    progressBar.setProgress(MusicManager.getSongProgress());
                 } catch (MidiUnavailableException e) {
                     e.printStackTrace();
                 }
             }
         };
         thread.start();
+
+        Thread progressThread = new Thread() {
+            @Override
+            public void run() {
+                while (true) {
+                    progressValue = MusicManager.getSongProgress();
+                    progressBar.setProgress(progressValue);
+                    songNameText = MusicManager.getSongName();
+                    songNameTxt.setText(songNameText);
+                }
+            }
+        };
+        progressThread.start();
     }
 
     public void main(String args[]) throws MidiUnavailableException {
@@ -172,6 +225,17 @@ public class Controller extends Thread {// implements Initializable {
     public void playPauseMusic(MouseEvent mouseEvent) throws MidiUnavailableException {
         //The 'isPLaying' value is inverted, this permits or prevents music generation and playing.
         MusicManager.isPlaying = !MusicManager.isPlaying;
+
+        if (MusicManager.isPlaying == false)
+        {
+            Image playBtnImage = new Image("Btn_Icons/PlayBtnIcon2.png");
+            pausePlayBtn.setGraphic(new ImageView(playBtnImage));
+        }
+        else
+        {
+            Image pauseBtnImage = new Image("Btn_Icons/PauseBtnIcon2.png");
+            pausePlayBtn.setGraphic(new ImageView(pauseBtnImage));
+        }
     }
 
     //This method is attached to the 'apply change' button on the 'set instrument' menu UI. It sets the user selected voice to user selected track.
@@ -207,6 +271,7 @@ public class Controller extends Thread {// implements Initializable {
         }
         //The selected voice is set to the selected track in the method these values are passed to.
         MusicManager.setInstrument(trackValue, bankValue, programValue);
+        System.out.println("SUCCESSFULLY CHANGED VOICE FOR TRACK. = " + trackValue + ". THE INSTRUMENT = " + bankValue +  ", " + programValue);
     }
 
     //If a key is pressed a listener calls this method...
@@ -248,12 +313,17 @@ public class Controller extends Thread {// implements Initializable {
         }
         //This mood value (that represents a key ID,) is passed to be identified as a Key, set, and utilised in the MusicManager.
         MusicManager.setKey(moods[mood]);
+        //The colour that represents the mood is accessed and assigned to the background 'root panel' with the same index 'mood'.
+        String[] moodColours = {"orange", "green", "blue", "grey", "black", "red", "purple", "pink"};
+        panelRoot.setStyle("-fx-background-color:" + moodColours[mood]);
+
+        System.out.println("KEY SUCCESSFULLY CHANGED. THE ID = " + (moods[mood]));
     }
 
     //This method changes the tempo value (milliseconds) and is passed to 'MusicGen'.
     public void tempoChange(MouseEvent mouseEvent) {
         //Ensuring the sphere has returned to the initial size, so that two close clicks do not make a permanent size change...
-        if (icon.getScaleX() == 1) {
+        if (graphicBody.getScaleX() == 1) {
             //Then the animation can be performed with these values, it will last 0.75 seconds and scale to this degree.
             tempoAnim(75, 0.15);
         }
@@ -263,16 +333,17 @@ public class Controller extends Thread {// implements Initializable {
         //The tempo must be kept within sensible values... (300bpm to 20bpm).
         if (lastClickMillis > 50 && lastClickMillis < 3000) {  //// > 250
             //Pass the millisecond value to the music playing class to indicate how long the thread should sleep for before the next note should be played.
-            MusicManager.setTempo((int) lastClickMillis);
+            MusicManager.tempo = ((int) lastClickMillis);
+            System.out.println("TEMPO SUCCESSFULLY CHANGED. THE TEMPO (in milliseconds) = " + (int) lastClickMillis);
         }
         //The time of this click is taken.
         lastClickMillis = System.currentTimeMillis();
     }
 
-    //This method controls an animation for the graphic icon.
+    //This method controls an animation for the graphic body.
     public void tempoAnim(int timeLength, double scaleAmount) {
         //The scale animation/transition is made for the object...
-        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(timeLength), icon);
+        ScaleTransition scaleTransition = new ScaleTransition(Duration.millis(timeLength), graphicBody);
         //The amount it should scale in respective directions is set.
         scaleTransition.setByX(scaleAmount);
         scaleTransition.setByY(scaleAmount);
