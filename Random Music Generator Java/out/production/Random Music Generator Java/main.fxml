@@ -3,15 +3,17 @@
 <?import javafx.scene.PerspectiveCamera?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
 <?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Cylinder?>
 <?import javafx.scene.shape.Sphere?>
 <?import javafx.scene.text.Font?>
 <?import javafx.scene.text.Text?>
 
-<AnchorPane fx:id="panelRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyChangeFromArrowKeys" prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: #000000;" xmlns="http://javafx.com/javafx/15.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="Controller">
+<AnchorPane fx:id="panelRoot" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" onKeyPressed="#keyChangeFromArrowKeys" prefHeight="500.0" prefWidth="500.0" style="-fx-background-color: #000000;" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="Controller">
    <children>
       <PerspectiveCamera fx:id="camera" layoutX="249.0" layoutY="274.0" />
       <Sphere fx:id="graphicBody" layoutX="249.0" layoutY="231.0" onMouseClicked="#tempoChange" radius="150.0" AnchorPane.leftAnchor="99.0" AnchorPane.rightAnchor="101.0" AnchorPane.topAnchor="81.0" />
@@ -26,20 +28,23 @@
       <Button fx:id="openHelpMenuBtn" layoutX="26.0" layoutY="29.0" mnemonicParsing="false" onMouseClicked="#openHelp" prefHeight="58.0" prefWidth="58.0" />
       <Button fx:id="openInstrumentMenuBtn" layoutX="415.0" layoutY="29.0" mnemonicParsing="false" onMouseClicked="#openInstrumentMenu" prefHeight="58.0" prefWidth="58.0" />
       <ProgressBar fx:id="progressBar" layoutX="123.0" layoutY="441.0" prefHeight="29.0" prefWidth="256.0" progress="0.0" />
-      <TextArea fx:id="instrumentMenu" layoutX="26.0" layoutY="20.0" prefHeight="450.0" prefWidth="450.0" visible="false" />
-      <Button fx:id="instrumentMenuCloseBtn" layoutX="362.0" layoutY="64.0" mnemonicParsing="false" onMouseClicked="#closeInstrumentMenu" prefHeight="58.0" prefWidth="58.0" visible="false" />
-      <Button fx:id="applyInstrumentBtn" layoutX="74.0" layoutY="337.0" mnemonicParsing="false" onMouseClicked="#setInstrumentChange" prefHeight="35.0" prefWidth="100.0" text="Apply change" visible="false">
+      <TextArea fx:id="instrumentMenu" layoutX="26.0" layoutY="20.0" prefHeight="450.0" prefWidth="450.0" />
+      <Button fx:id="instrumentMenuCloseBtn" layoutX="362.0" layoutY="64.0" mnemonicParsing="false" onMouseClicked="#closeInstrumentMenu" prefHeight="58.0" prefWidth="58.0" />
+      <Button fx:id="applyInstrumentBtn" layoutX="75.0" layoutY="377.0" mnemonicParsing="false" onMouseClicked="#setInstrumentChange" prefHeight="35.0" prefWidth="100.0" text="Apply change">
          <font>
             <Font name="System Bold" size="12.0" />
          </font></Button>
-      <ComboBox fx:id="trackDropDown" layoutX="74.0" layoutY="173.0" prefHeight="58.0" prefWidth="353.0" promptText="Select Instrument Track" visible="false" />
-      <ComboBox fx:id="voiceDropDown" layoutX="74.0" layoutY="245.0" prefHeight="58.0" prefWidth="353.0" promptText="Select instrument/voice" visible="false" />
-      <Text fx:id="songNameTxt" fill="WHITE" layoutX="63.0" layoutY="418.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SongName" textAlignment="CENTER" wrappingWidth="376.9853515625">
+      <ComboBox fx:id="trackDropDown" layoutX="75.0" layoutY="213.0" prefHeight="58.0" prefWidth="353.0" promptText="Select Instrument Track" />
+      <ComboBox fx:id="voiceDropDown" layoutX="75.0" layoutY="285.0" prefHeight="58.0" prefWidth="353.0" promptText="Select instrument/voice" />
+      <Text fx:id="songNameTxt" fill="WHITE" layoutX="13.0" layoutY="420.0" strokeType="OUTSIDE" strokeWidth="0.0" text="SongName" textAlignment="CENTER" wrappingWidth="472.0">
          <font>
             <Font name="Corbel" size="35.0" />
          </font>
       </Text>
-      <Button fx:id="FFBtn" layoutX="415.0" layoutY="412.0" mnemonicParsing="false" onMouseClicked="#playPauseMusic" prefHeight="58.0" prefWidth="58.0" />
-      <Button fx:id="RWBtn" layoutX="26.0" layoutY="412.0" mnemonicParsing="false" onMouseClicked="#playPauseMusic" prefHeight="58.0" prefWidth="58.0" />
+      <Button fx:id="FFBtn" layoutX="415.0" layoutY="412.0" mnemonicParsing="false" onMouseClicked="#nextSong" prefHeight="58.0" prefWidth="58.0" />
+      <Button fx:id="RWBtn" layoutX="26.0" layoutY="412.0" mnemonicParsing="false" onMouseClicked="#previousSong" prefHeight="58.0" prefWidth="58.0" />
+      <Label fx:id="TimeSignatureLbl" layoutX="84.0" layoutY="94.0" text="Time Signature" textFill="WHITE" />
+      <TextField fx:id="sigTopTxtField" layoutX="84.0" layoutY="123.0" prefHeight="26.0" prefWidth="90.0" />
+      <TextField fx:id="sigBotTxtField" layoutX="84.0" layoutY="158.0" prefHeight="26.0" prefWidth="90.0" />
    </children>
 </AnchorPane>

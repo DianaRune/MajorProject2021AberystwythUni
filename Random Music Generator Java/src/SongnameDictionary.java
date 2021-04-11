@@ -63,16 +63,14 @@ public class SongnameDictionary {
         noun = nounEnd;
     }
 
-        public static String generateSongName(){
+    public static String generateSongName() {
         currentSongName = new SongnameDictionary(the, fillAndGetAdjDictionary(), fillAndGetAdjDictionary(), fillAndGetNounDictionary());
 
         String returnName = "";
-        if (currentSongName.the != "")
-        {
+        if (currentSongName.the != "") {
             returnName = returnName + currentSongName.the + " ";
         }
-        if (currentSongName.adjective1 != "")
-        {
+        if (currentSongName.adjective1 != "") {
             returnName = returnName + currentSongName.adjective1 + " ";
         }
         returnName = returnName + currentSongName.adjective2 + " ";

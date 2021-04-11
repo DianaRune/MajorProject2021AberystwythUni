@@ -1,9 +1,7 @@
 //The chordManager of type 'Track', will manage and generate the chord instrument component of the music for playing.
 public class ChordManager extends TrackManager {
 
-    public static String chordProgressionPattern;
-
-    public static int TRACKLENGTH = 40;
+    public static int chordTrackLength = TrackManager.trackLength;
 
     public static int pathSeed1;
     public static int pathSeed2;
@@ -17,43 +15,31 @@ public class ChordManager extends TrackManager {
     //For example, chord3Roll[0][0] = a required note pitch for chord one and chord3Roll[0][1] = its note's velocity.
     //When they're played together they make up the first chord queued.
     //chord1Roll[1][0] = is a required note of the next (second) chord, and so on...
-    public static Note[] chord1Roll = new Note[TRACKLENGTH];
-    public static Note[] chord2Roll = new Note[TRACKLENGTH];
-    public static Note[] chord3Roll = new Note[TRACKLENGTH];
+    public static Note[] chord1Roll = new Note[chordTrackLength];
+    public static Note[] chord2Roll = new Note[chordTrackLength];
+    public static Note[] chord3Roll = new Note[chordTrackLength];
 
     //Called in the 'MusicManager', will generate and return the chord note arrays. These will be played simultaneously to make up a chord.
     public static Note[][] playChord() {
         //Fills the arrays with empty values in order to give them length and determine there aren't real notes under the index.
-        TrackManager.fillRollWithEmptyValues(chord1Roll);
-        TrackManager.fillRollWithEmptyValues(chord2Roll);
-        TrackManager.fillRollWithEmptyValues(chord3Roll);
+        chord1Roll = TrackManager.fillRollWithEmptyValues(chordTrackLength);
+        chord2Roll = TrackManager.fillRollWithEmptyValues(chordTrackLength);
+        chord3Roll = TrackManager.fillRollWithEmptyValues(chordTrackLength);
 
         //Generate and return the chord notes to be loaded, in the current key set.
         //Should have the index structure [queued chord number][note/array number for chord]
-        Note[][] generatedChords = generateChord(TrackManager.getKey());
-
-     //   //These arrays will hold separated chord values, so chord can be determined by a shared index.                            // NOT REQUIRED
-     //   Note[] generatedNotes1 = new Note[TRACKLENGTH];                                                                           // NOT REQUIRED
-     //   Note[] generatedNotes2 = new Note[TRACKLENGTH];                                                                           // NOT REQUIRED
-     //   Note[] generatedNotes3 = new Note[TRACKLENGTH];                                                                           // NOT REQUIRED
-
-        //Fill these arrays with the returned generated notes.
-        for (int i = 0; i < generatedChords.length; i++)
-        {
+        int[][][] generatedValues = generateChord(TrackManager.getKey());
+        for (int i = 0; i < generatedValues.length; i++) {
+            //Fill these arrays with the returned generated notes.
             //Each 'chord' will have its notes separated into the destined array.
             //Here the first note of the chord, 'i', is passed into the array that holds all the first notes and so forth.
-            chord1Roll[i] = generatedChords[i][0];
-            chord2Roll[i] = generatedChords[i][1];
-            chord3Roll[i] = generatedChords[i][2];
-            ////System.out.println("generatedChords[i][0] " + generatedChords[i][0]);
-            ////System.out.println("generatedChords[i][1] " + generatedChords[i][1]);
-            ////System.out.println("generatedChords[i][2] " + generatedChords[i][2]);
+            Note roll1Note = new Note(generatedValues[i][0][0], generatedValues[i][0][1], generatedValues[i][0][2]);
+            chord1Roll[i] = roll1Note;
+            Note roll2Note = new Note(generatedValues[i][1][0], generatedValues[i][1][1], generatedValues[i][1][2]);
+            chord2Roll[i] = roll2Note;
+            Note roll3Note = new Note(generatedValues[i][2][0], generatedValues[i][2][1], generatedValues[i][2][2]);
+            chord3Roll[i] = roll3Note;
         }
-
-     //   //The chord track rolls are loaded into with their generated note values (current octave adjusted) and velocities.         // NOT REQUIRED
-     //   chord1Roll = loadRoll(chord1Roll, generatedNotes1);                                                                        // NOT REQUIRED
-     //   chord2Roll = loadRoll(chord2Roll, generatedNotes2);                                                                        // NOT REQUIRED
-     //   chord3Roll = loadRoll(chord3Roll, generatedNotes3);                                                                        // NOT REQUIRED
 
         //Create a new 3D array to hold all the chord arrays...
         //Will have the structure [arrayNumber][noteValue][velocityValue]
@@ -62,6 +48,48 @@ public class ChordManager extends TrackManager {
         return allRollsArray;
     }
 
+    //This method generates chord notes in the selected key from the 'chordPatterns' string...
+    public static int[][][] generateChord(Key chosenKey) {
+        //The dictionary is filled with the chords that are set to be put there.
+        ChordDictionary.fillDictionary();
+        //The string returned, describing chord pattern and order, is broken by its "," delimiter.
+        //The chord string is structured as so... 2,5,6,4,2,5,1,
+        String[] progression = chordPatterns().split(",");
+        //This array will be filled with the chord string values parsed as ints.
+        int[] chordIndex = new int[8];
+        //This array will contain the notes values for each chord...
+        //Should have the index structure [queued chord number][note/array number for chord]
+        int[][][] chordNotes = new int[progression.length][3][3];////////////////////////////////////////////////////////////////////////////////////////////////////////// int and not Note
+        //A loop will be called for each chord queued, they will be calculated into real note values, and returned.
+        for (int i = 0; i < progression.length; i++) {
+            //The individual chord string values are parsed as ints.
+            chordIndex[i] = Integer.parseInt(progression[i]);
+            //The respective dictionary value is accessed with the integer ID value.
+            //Its length determines the loop times and it is used to calculate the note values...
+            for (int j = 0; j < ChordDictionary.chord_dictionary.get(chordIndex[i]).length; j++) {
+                //Adjust each note value of the chord, according to key (by adding the root note value).
+                chordNotes[i][j][0] = ChordDictionary.chord_dictionary.get(chordIndex[i])[j] + chosenKey.noteValues[0];
+                ////System.out.println("The chord notes for loading: " + chordNotes[i][j]);
+                chordNotes[i][j][1] = 10;
+                chordNotes[i][j][2] = 1000;
+            }
+        }
+        //The chord notes are returned.
+        return chordNotes;
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+/*
     //This method generates chord notes in the selected key from the 'chordPatterns' string...
     public static Note[][] generateChord(Key chosenKey) {
         //The dictionary is filled with the chords that are set to be put there.
@@ -89,8 +117,9 @@ public class ChordManager extends TrackManager {
         //The chord notes are returned.
         return chordNotes;
     }
+*/
 
-    /*
+
     //COULD BE AN INT ARRAY ACTUALLY??????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????????
     //The method that generates the patterns and order of the chords to be played...
     public static String chordPatterns() {
@@ -100,7 +129,7 @@ public class ChordManager extends TrackManager {
         int pathChosen = 0;
 
         //There is a 50% chance on what the next chord should be depending on the random decimal returned.
-        if (pathSeed1) { //0 or 1
+        if (pathSeed1 % 2 == 0) { //0 or 1
             //The chord value accessed is then added to be played...
             chordProgressionPattern = chordProgressionPattern + "5,";
             //And the potential next chord path is set.
@@ -112,7 +141,7 @@ public class ChordManager extends TrackManager {
 
         //Depending on the previous chord, either of these could be added next and determine what the future ones might be.
         if (pathChosen == 5) {
-            if (pathSeed2) {
+            if (pathSeed2 % 2 == 0) {
                 chordProgressionPattern = chordProgressionPattern + "6,";
                 pathChosen = 6;
             } else {
@@ -122,7 +151,7 @@ public class ChordManager extends TrackManager {
         }
 
         if (pathChosen == 3) {
-            if (pathSeed3) {
+            if (pathSeed3 % 2 == 0) {
                 chordProgressionPattern = chordProgressionPattern + "6,";
                 pathChosen = 6;
             } else {
@@ -132,7 +161,7 @@ public class ChordManager extends TrackManager {
         }
 
         if (pathChosen == 6) {
-            if (pathSeed4) {
+            if (pathSeed4 % 2 == 0) {
                 chordProgressionPattern = chordProgressionPattern + "4,";
                 pathChosen = 4;
             } else {
@@ -143,7 +172,7 @@ public class ChordManager extends TrackManager {
         }
 
         if (pathChosen == 4) {
-            if (pathSeed5) {
+            if (pathSeed5 % 2 == 0) {
                 chordProgressionPattern = chordProgressionPattern + "2,";
                 chordProgressionPattern = chordProgressionPattern + "5,";
                 chordProgressionPattern = chordProgressionPattern + "1,";
@@ -156,7 +185,6 @@ public class ChordManager extends TrackManager {
         //The string is returned.
         return chordProgressionPattern;
     }
-     */
 }
 
 

@@ -29,18 +29,18 @@ public class Key {
     public static Key CSharpMinorScale = new Key(104, scaleCalculator(false, Pitch.CSHARP), false);
     public static Key BMajorScale = new Key(205, scaleCalculator(true, Pitch.B), true);
     public static Key GSharpMinorScale = new Key(105, scaleCalculator(false, Pitch.GSHARP), false);
-    //GSharpMinorScale/////
 
-    //This is e-harmonic to the BMajorScale, so we have passed 'B's value' instead, because it is an existing pitch.
+    //This is e-harmonic to the BMajorScale, so 'B's value' are passed instead, because it is an existing pitch.
     public static Key CFlatMajorScale = new Key(306, scaleCalculator(true, Pitch.B), true);
 
+    //GFlat and FSharp are the same scale...
     public static Key GFlatOrFSharpMajorScale = new Key(207, scaleCalculator(true, Pitch.FSHARP), true);
-    //SAME SCALE DESPITE MAJOR/MINOR
+    //Just expressed differently. (But that does not matter here at present.)
     public static Key GFlatOrFSharpMinorScale = new Key(107, scaleCalculator(false, Pitch.FSHARP), false);
 
     //CSharp and DFlat are the same scale...
     public static Key CSharpMajorScale = new Key(308, scaleCalculator(true, Pitch.CSHARP), true);
-    //See? Just expressed differently.
+    //Just expressed differently. (But that does not matter here at present.)
     public static Key DFlatMajorScale = new Key(209, scaleCalculator(true, Pitch.CSHARP), true);
 
     public static Key BFlatMinorScale = new Key(109, scaleCalculator(false, Pitch.ASHARP), false);
@@ -90,8 +90,7 @@ public class Key {
     }
 
     //Get and return every Key in an array...
-    public static Key[] getKeyArray()
-    {
+    public static Key[] getKeyArray() {
         return new Key[]{CMajorScale, AMinorScale, GMajorScale, EMinorScale, DMajorScale, BMinorScale, AMajorScale, FSharpMinorScale, EMajorScale, CSharpMinorScale, BMajorScale, GSharpMinorScale, CFlatMajorScale, GFlatOrFSharpMajorScale, GFlatOrFSharpMinorScale, CSharpMajorScale, DFlatMajorScale, BFlatMinorScale, AFlatMajorScale, FMinorScale, EFlatMajorScale, CMinorScale, BFlatMajorScale, GMinorScale, FMajorScale, DMinorScale};
     }
 }

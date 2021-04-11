@@ -1,8 +1,7 @@
 //Importing the JavaFX libraries required to access and alter the graphics...
 import javafx.animation.ScaleTransition;
 import javafx.fxml.FXML;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ProgressBar;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
@@ -11,68 +10,45 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.shape.Cylinder;
 import javafx.scene.shape.Sphere;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.Button;
 import javafx.scene.text.Text;
 import javafx.util.Duration;
 //Importing MIDI library for the MIDI unavailable exception.
 import javax.sound.midi.*;
-import javax.swing.*;
-
-import static java.lang.StrictMath.round;
-
-//  MIDI
-//  source for a lot of this stuff: https://docs.oracle.com/javase/tutorial/sound/MIDI-synth.html
+//Imports the function that allows for parsing ints. (Attempted integer conversion from another data type.)
+import static java.lang.Integer.parseInt;
 
 //The controller class for my JavaFX UI. Also my main class where I will 'call MusicGen' functionality.
-public class Controller extends Thread {// implements Initializable {
+public class Controller extends Thread {
 
-    //public static int tempo = 60; //bpm
+    //The time since the graphic was clicked last. This is used to determine the time between each note being played, therefore, tempo.
     public static long lastClickMillis = 1000;
     //The FXML objects created and referenced and initialised for use here.
     //@FXML allows the FXMLLoader to inject the pre-defined FXML values into the ones defined here, in the controller class.
     @FXML
     public AnchorPane panelRoot;
-    @FXML
     public Sphere graphicBody;
-    @FXML
     public Cylinder graphic1;
-    @FXML
     public Cylinder graphic2;
-    @FXML
     public Cylinder graphic3;
-    @FXML
     public Cylinder graphic4;
-    @FXML
     public Cylinder graphic5;
-    @FXML
     public TextArea helpMenu;
-    @FXML
     public Button helpMenuCloseBtn;
-    @FXML
     public Button openHelpMenuBtn;
-    @FXML
     public Button openInstrumentMenuBtn;
-    @FXML
     public Button pausePlayBtn;
-    @FXML
     public Button instrumentMenuCloseBtn;
-    @FXML
     public Button FFBtn;
-    @FXML
     public Button RWBtn;
-    @FXML
     public TextArea instrumentMenu;
-    @FXML
     public ComboBox voiceDropDown;
-    @FXML
     public ComboBox trackDropDown;
-    @FXML
     public Button applyInstrumentBtn;
-    @FXML
     public Text songNameTxt;
-    @FXML
     public ProgressBar progressBar = new ProgressBar();
+    public Label TimeSignatureLbl;
+    public TextField sigTopTxtField;
+    public TextField sigBotTxtField;
 
     //The index for the mood array, determines current mood.
     public int mood = 0;
@@ -88,7 +64,9 @@ public class Controller extends Thread {// implements Initializable {
     //These are grouped in an array for access.
     public int[] moods = {HAPPY, CALM, LONGING, DISCONTENTMENT, GRIEF, RAGE, DEATH, HOPE};
 
+    //The decimal of how long a song has been played for. It is passed to a progress bar to be displayed.
     public double progressValue;
+    //The name of the current song being played, it's passed to a text object to be displayed here.
     public String songNameText;
 
     //At runtime, the interface is prepared and the music is starts playing in its own thread.
@@ -103,6 +81,10 @@ public class Controller extends Thread {// implements Initializable {
         voiceDropDown.setVisible(false);
         trackDropDown.setVisible(false);
         applyInstrumentBtn.setVisible(false);
+
+        TimeSignatureLbl.setVisible(false);
+        sigTopTxtField.setVisible(false);
+        sigBotTxtField.setVisible(false);
 
         //All the instruments/'voices' available are retrieved.
         Voice[] voiceArray = Voice.getVoiceArray();
@@ -153,17 +135,7 @@ public class Controller extends Thread {// implements Initializable {
         Image ffBtnImage = new Image("Btn_Icons/FF_Btn.png");
         FFBtn.setGraphic(new ImageView(ffBtnImage));
 
-        Thread thread = new Thread() {
-            @Override
-            public void run() {
-                try {
-                    MusicManager.playMusic();
-                } catch (MidiUnavailableException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        thread.start();
+        MusicManager.musicThread.start();
 
         Thread progressThread = new Thread() {
             @Override
@@ -209,6 +181,13 @@ public class Controller extends Thread {// implements Initializable {
         voiceDropDown.toFront();
         applyInstrumentBtn.setVisible(true);
         applyInstrumentBtn.toFront();
+
+        TimeSignatureLbl.setVisible(true);
+        TimeSignatureLbl.toFront();
+        sigTopTxtField.setVisible(true);
+        sigTopTxtField.toFront();
+        sigBotTxtField.setVisible(true);
+        sigBotTxtField.toFront();
     }
 
     //The related objects are hidden in order to close this 'set instrument' menu.
@@ -218,6 +197,10 @@ public class Controller extends Thread {// implements Initializable {
         trackDropDown.setVisible(false);
         voiceDropDown.setVisible(false);
         applyInstrumentBtn.setVisible(false);
+
+        TimeSignatureLbl.setVisible(false);
+        sigTopTxtField.setVisible(false);
+        sigBotTxtField.setVisible(false);
     }
 
     //This method is attached to the play/pause button on the UI.
@@ -226,13 +209,10 @@ public class Controller extends Thread {// implements Initializable {
         //The 'isPLaying' value is inverted, this permits or prevents music generation and playing.
         MusicManager.isPlaying = !MusicManager.isPlaying;
 
-        if (MusicManager.isPlaying == false)
-        {
+        if (MusicManager.isPlaying == false) {
             Image playBtnImage = new Image("Btn_Icons/PlayBtnIcon2.png");
             pausePlayBtn.setGraphic(new ImageView(playBtnImage));
-        }
-        else
-        {
+        } else {
             Image pauseBtnImage = new Image("Btn_Icons/PauseBtnIcon2.png");
             pausePlayBtn.setGraphic(new ImageView(pauseBtnImage));
         }
@@ -271,7 +251,23 @@ public class Controller extends Thread {// implements Initializable {
         }
         //The selected voice is set to the selected track in the method these values are passed to.
         MusicManager.setInstrument(trackValue, bankValue, programValue);
-        System.out.println("SUCCESSFULLY CHANGED VOICE FOR TRACK. = " + trackValue + ". THE INSTRUMENT = " + bankValue +  ", " + programValue);
+        System.out.println("SUCCESSFULLY CHANGED VOICE FOR TRACK. = " + trackValue + ". THE INSTRUMENT = " + bankValue + ", " + programValue);
+
+        int sigTop = parseInt(sigTopTxtField.getText());
+        System.out.println(sigTop);
+        int sigBot = parseInt(sigBotTxtField.getText());
+        if (sigTop <= 1 || sigTop > 12)
+        {
+            System.out.println("Your top Time Signature value is out of bounds. Please pick a value between 2 and 12.");
+        }
+        else if (sigBot <= 1 || sigBot > 8)
+        {
+            System.out.println("Your bottom Time Signature value is out of bounds. Please pick a value between 2 and 8.");
+        }
+        else
+        {
+            MusicManager.setTimeSig(sigTop, sigBot);
+        }
     }
 
     //If a key is pressed a listener calls this method...
@@ -280,33 +276,27 @@ public class Controller extends Thread {// implements Initializable {
     @FXML
     void keyChangeFromArrowKeys(KeyEvent keyEvent) {
         //If this key is 'D'...
-        if (keyEvent.getCode() == KeyCode.D)
-        {
+        if (keyEvent.getCode() == KeyCode.D) {
             //And the index value is equal to the maximum mood index...
-            if (mood == (moods.length - 1))
-            {
+            if (mood == (moods.length - 1)) {
                 //Then the minimum index is set. (Makes the array go full circle.)
                 mood = 0;
             }
             //Otherwise...
-            else
-            {
+            else {
                 //This index value should be incremented, and the next clockwise mood accessed.
                 mood++;
             }
         }
         //Else if this key is 'A'...
-        else if (keyEvent.getCode() == KeyCode.A)
-        {
+        else if (keyEvent.getCode() == KeyCode.A) {
             //And the index value is equal to the minimum mood index...
-            if (mood == 0)
-            {
+            if (mood == 0) {
                 //Then the maximum index is set. (Makes the array go full circle.)
                 mood = (moods.length - 1);
             }
             //Otherwise...
-            else
-            {
+            else {
                 //This index value should be decremented, and the next anti-clockwise mood accessed.
                 mood--;
             }
@@ -355,5 +345,13 @@ public class Controller extends Thread {// implements Initializable {
         scaleTransition.setCycleCount(2);
         //It plays and reverses.
         scaleTransition.play();
+    }
+
+    public void previousSong() {
+        MusicManager.playPreviousSong();
+    }
+
+    public void nextSong() {
+        MusicManager.playNextSong();
     }
 }

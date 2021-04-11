@@ -3,9 +3,9 @@ import java.util.Random;
 public class Seeds {
     int seed = 0;
 
-    //Random.seed(seed);
+            //Random.seed(seed);
 
-    //int
+            //int
 }
 /*
 / Select random seed, or choose one specifically

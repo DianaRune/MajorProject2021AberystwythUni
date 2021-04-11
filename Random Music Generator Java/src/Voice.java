@@ -1,6 +1,6 @@
 import javax.sound.midi.Instrument;
 
-    public class Voice {
+public class Voice {
     //It has an integer identifier.
     public int ID;
     //It has an array of integer values representing the notes in the scale for each respective Key.
@@ -28,13 +28,11 @@ import javax.sound.midi.Instrument;
         name = voiceName;
     }
 
-    public static Voice[] getVoiceArray()
-    {
+    public static Voice[] getVoiceArray() {
         return new Voice[]{piano, cleanGuitar, mutedGuitar, pickedBass, fretlessBass, squareWave, sawWave, spaceVoice, shamisen, kalimba, synthDrum};
     }
 
 }
-
 
 
 //public static IdentityHashMap<Integer, int[]> chord_dictionary;
